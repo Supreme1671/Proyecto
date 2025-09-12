@@ -1,0 +1,6 @@
+@NetflixLibrosApi_HostAddress = http://localhost:5072
+
+GET {{NetflixLibrosApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
