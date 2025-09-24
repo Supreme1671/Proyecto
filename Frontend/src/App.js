@@ -1,8 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import PaginaPrincipal from "./PaginaPrincipal";
-import Categoria from "./components/Categoria"; // Nuevo componente
+import PaginaPrincipal from "./pages/PaginaPrincipal";
+import Categoria from "./components/Categoria";
 
 function App() {
   return (

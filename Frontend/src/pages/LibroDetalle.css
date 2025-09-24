@@ -1,0 +1,46 @@
+.libro-detalle {
+  padding: 80px 20px;
+  background-color: #141414;
+  color: white;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.libro-detalle img {
+  max-width: 300px;
+  width: 100%;
+  border-radius: 10px;
+  margin: 20px 0;
+}
+
+.libro-detalle h1 {
+  color: #e50914;
+  margin-bottom: 5px;
+}
+
+.libro-detalle h3 {
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+.btn-pdf {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 15px;
+  background: #e50914;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.btn-pdf:hover {
+  background: #b20710;
+}
+
+.volver {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: white;
+  text-decoration: none;
+}

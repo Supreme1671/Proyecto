@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "ET5BLQVJzk6FSi4+c41UVVRCoOqQXCwABXptWfAee5Y=",
+  "Source": "NetflixLibrosApi",
+  "BasePath": "_content/NetflixLibrosApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
