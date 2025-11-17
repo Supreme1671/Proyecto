@@ -70,5 +70,15 @@ namespace Proyecto.Core.Repositorios.ReposDapper
         {
             throw new NotImplementedException();
         }
+
+        bool IEventoRepository.Add(Evento evento)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool IEventoRepository.Cancelar(int idEvento)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

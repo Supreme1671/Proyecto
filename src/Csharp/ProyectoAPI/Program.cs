@@ -375,7 +375,7 @@ app.MapPut("/funciones/{funcionId}", (int IdFuncion, FuncionUpdateDTO dto, IFunc
 {
     var ok = repo.Update(IdFuncion, dto);
     return ok ? Results.NoContent() : Results.NotFound();
-}).WithTags("Funciones");
+}).WithTags("Funcion");
 
 app.MapPost("/funciones/{funcionId}/cancelar", (int IdFuncion, IFuncionRepository repo) =>
 {
@@ -386,7 +386,7 @@ repo.Update(existente);
 
 return Results.NoContent();
 
-}).WithTags("Funciones");
+}).WithTags("Funcion");
 #endregion
 
 #region LOCAL
@@ -478,7 +478,7 @@ app.MapDelete("/sectores/{sectorId}", (int IdSector, ISectorRepository repo) =>
 {
     var ok = repo.Delete(IdSector);
     return ok ? Results.NoContent() : Results.BadRequest("Sector con tarifas/funciones asociadas");
-}).WithTags("Sectores");
+}).WithTags("Sector");
 #endregion
 
 #region TARIFAS
@@ -572,7 +572,7 @@ app.MapPost("/usuarios/{id}/roles/{rolId}", (int idUsuario, int rolId, IUsuarioR
 {
     repo.AsignarRol(idUsuario, rolId);
     return Results.Ok(new { mensaje = "Rol asignado correctamente" });
-}).WithTags("Rol");
+}).WithTags("Roles");
 #endregion
 
 #region QR
@@ -604,7 +604,7 @@ app.MapPost("/qr/validar", (string qrContent, QrService qrService) =>
 {
     var resultado = qrService.ValidarQr(qrContent);
     return Results.Ok(resultado);
-});
+}).WithTags("QR");
 
 app.MapPost("/api/qr/{idEntrada}", (int idEntrada, IQrService qrService) =>
 {

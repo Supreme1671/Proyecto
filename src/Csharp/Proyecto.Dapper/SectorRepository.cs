@@ -67,4 +67,9 @@ public class SectorRepository : ISectorRepository
     {
         throw new NotImplementedException();
     }
+
+    bool ISectorRepository.Delete(int idSector)
+    {
+        throw new NotImplementedException();
+    }
 }
