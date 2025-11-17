@@ -99,4 +99,9 @@ public class OrdenRepository : IOrdenRepository
         string sql = "UPDATE Orden SET Estado = 'Cancelada' WHERE IdOrden = @IdOrden AND Estado = 'Creada';";
         db.Execute(sql, new { IdOrden = idOrden });
     }
+
+    bool IOrdenRepository.Pagar(int idOrden)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -1,4 +1,5 @@
 using Proyecto.Core.Entidades;
+using Servicios.Interfaces;
 
 namespace Servicios;
 public class EventoService : IEventoService

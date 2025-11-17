@@ -7,7 +7,8 @@ public interface IOrdenRepository
     Orden? GetById(int idOrden);
     void Add(Orden orden);
     void Update(Orden orden);
-    void Pagar(int IdOrden);
+    bool Pagar(int idOrden);
+
     void Cancelar(int IdOrden);
     //void Add(Orden nueva);
 }

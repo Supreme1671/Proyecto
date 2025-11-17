@@ -2,7 +2,7 @@ using System.Data;
 using Dapper;
 using Microsoft.Extensions.Configuration;
 using MySqlConnector;
-using Proyecto.Core.Interfaces;
+using Proyecto.Core.DTOs;
 using Proyecto.Core.Entidades;
 
 namespace Proyecto.Core.Repositorios.ReposDapper
@@ -66,5 +66,9 @@ namespace Proyecto.Core.Repositorios.ReposDapper
             db.Execute("DELETE FROM Evento WHERE idEvento=@Id", new { Id = idEvento });
         }
 
+        public bool Update(int idEvento, EventoUpdateDTO dto)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

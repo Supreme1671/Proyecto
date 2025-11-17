@@ -1,4 +1,5 @@
 using Proyecto.Core.Entidades;
+using Proyecto.Core.DTOs;
 namespace Proyecto.Core.Repositorios
 {
     public interface ITarifaRepository
@@ -7,7 +8,6 @@ namespace Proyecto.Core.Repositorios
         IEnumerable<Tarifa> GetByFuncionId(int IdFuncion);
         Tarifa? GetById(int idTarifa);
         void Update(Tarifa tarifa);
-
-
+        bool Update(int idTarifa, TarifaUpdateDTO dto);
     }
 }

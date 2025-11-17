@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 using Proyecto.Core.Repositorios;
 using Proyecto.Core.Entidades;
+using Proyecto.Core.DTOs;
 
 namespace Proyecto.Core.Repositorios.ReposDapper
 {
@@ -55,6 +56,11 @@ namespace Proyecto.Core.Repositorios.ReposDapper
         {
             using var db = Connection;
             db.Execute("DELETE FROM Funcion WHERE idFuncion=@idFuncion", new { idFuncion });
+        }
+
+        public bool Update(int idFuncion, FuncionUpdateDTO dto)
+        {
+            throw new NotImplementedException();
         }
     }
 }

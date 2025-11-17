@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 using Proyecto.Core.Repositorios;
 using Proyecto.Core.Entidades;
+using Proyecto.Core.DTOs;
 
 namespace Proyecto.Core.Repositorios.ReposDapper;
 public class SectorRepository : ISectorRepository
@@ -61,5 +62,9 @@ public class SectorRepository : ISectorRepository
         string sql = "INSERT INTO Sectores (Nombre, idLocal ) VALUES (@Nombre, @idLocal );";
         db.Execute(sql, new { sector.Nombre, sector.idLocal  });
     }
-   
+
+    public bool Update(int idSector, SectorDTO dto)
+    {
+        throw new NotImplementedException();
+    }
 }

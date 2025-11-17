@@ -1,3 +1,4 @@
+using Proyecto.Core.DTOs;
 using Proyecto.Core.Entidades;
 
 namespace Proyecto.Core.Servicios;
@@ -20,5 +21,10 @@ public class AuthService
     public bool Login(string usuario, string Contrasena)
     {
         return usuarios.Any(u => u.NombreUsuario == usuario && u.Contrasena == Contrasena && u.Activo);
+    }
+
+    public object Register(UsuarioRegisterDTO dto)
+    {
+        throw new NotImplementedException();
     }
 }

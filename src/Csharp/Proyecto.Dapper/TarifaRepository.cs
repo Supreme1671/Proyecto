@@ -2,7 +2,7 @@ using System.Data;
 using Dapper;
 using Microsoft.Extensions.Configuration;
 using MySqlConnector;
-using Proyecto.Core.Interfaces;
+using Proyecto.Core.DTOs;
 using Proyecto.Core.Entidades;
 
 namespace Proyecto.Core.Repositorios.ReposDapper;
@@ -50,5 +50,8 @@ public class TarifaRepository : ITarifaRepository
         db.Execute(sql, tarifa);
     }
 
-    
+    public bool Update(int idTarifa, TarifaUpdateDTO dto)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -1,4 +1,5 @@
 using Proyecto.Core.Entidades;
+using Proyecto.Core.DTOs;
 namespace Proyecto.Core.Repositorios;
 
 public interface ISectorRepository
@@ -9,4 +10,5 @@ public interface ISectorRepository
     void Update(Sector sector);
     void Delete(int idSector);
     void Add(int idLocal, Sector sector);
+    bool Update(int idSector, SectorDTO dto);
 }

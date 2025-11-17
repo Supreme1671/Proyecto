@@ -1,5 +1,4 @@
 namespace Proyecto.Core.DTOs;
-
 public class LocalDTO
 {
     public int idLocal { get; set; }
