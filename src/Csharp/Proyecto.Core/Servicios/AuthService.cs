@@ -27,4 +27,9 @@ public class AuthService
     {
         throw new NotImplementedException();
     }
+
+    public object? Refresh(RefreshDTO dto)
+    {
+        throw new NotImplementedException();
+    }
 }
