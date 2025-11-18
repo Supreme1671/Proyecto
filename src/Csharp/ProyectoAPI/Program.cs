@@ -237,13 +237,15 @@ app.MapPost("/api/ordenes", (OrdenCreateDTO dto, IOrdenRepository repo) =>
         dto.IdTarifas.Count != dto.Cantidades.Count)
         return Results.BadRequest("Las listas idFunciones, idTarifas y Cantidades deben tener la misma longitud.");
 
-    var orden = new Orden
-    {
-        idCliente = dto.IdCliente,
-        Fecha = DateTime.Now,
-        Total = 0,
-        Detalles = new List<DetalleOrden>()
-    };
+   var orden = new Orden
+{
+    idCliente = dto.IdCliente,
+    Fecha = DateTime.Now,
+    Total = 0,
+    Estado = "Pendiente",      
+    Detalles = new List<DetalleOrden>()
+};
+
 
     for (int i = 0; i < dto.IdFunciones.Count; i++)
     {
@@ -299,7 +301,6 @@ app.MapGet("/api/ordenes", (IOrdenRepository repo) =>
             IdEvento = d.IdEvento,
             IdTarifa = d.IdTarifa,
             Cantidad = d.Cantidad,
-            PrecioUnitario = d.PrecioUnitario
         }).ToList()
     });
 
@@ -338,10 +339,9 @@ app.MapGet("/api/ordenes/{idOrden}", (int idOrden, IOrdenRepository repo) =>
 app.MapPost("/api/ordenes/{idOrden}/pagar", (int idOrden, IOrdenRepository repo) =>
 {
     var ok = repo.Pagar(idOrden);
-    return ok ? Results.Ok() : Results.BadRequest("No se puede pagar la orden.");
+    return ok ? Results.Ok("Orden pagada") : Results.BadRequest("No se pudo pagar la orden.");
 })
 .WithTags("Orden");
-
 
 app.MapPost("/api/ordenes/{idOrden}/cancelar", (int idOrden, IOrdenRepository repo) =>
 {
@@ -452,9 +452,9 @@ app.MapGet("/api/eventos", (IEventoRepository repo) =>
     }));
 }).WithTags("Eventos");
 
-app.MapGet("/eventos/{eventoId}", (int eventoId, IEventoRepository repo) =>
+app.MapGet("/eventos/{eventoId}", (int idEvento, IEventoRepository repo) =>
 {
-    var e = repo.GetById(eventoId);
+    var e = repo.GetById(idEvento);
     return e is null ? Results.NotFound() : Results.Ok(e);
 }).WithTags("Eventos");
 
@@ -472,7 +472,6 @@ app.MapPost("/api/eventos", (EventoCreateDTO dto, IEventoRepository repo) =>
         Fecha = dto.Fecha,
         Activo = true,
         Lugar = dto.Lugar,
-        Tipo = dto.Tipo
     };
     repo.Add(ev);
     return Results.Created($"/api/eventos/{ev.idEvento}", ev);
@@ -546,9 +545,13 @@ app.MapPost("/api/locales", (LocalCreateDTO dto, ILocalRepository repo) =>
         Capacidad = dto.Capacidad,
         Telefono = dto.Telefono
     };
+
     var id = repo.Add(local);
+    local.idLocal = id; // <-- IMPORTANTE
+
     return Results.Created($"/api/locales/{id}", local);
-}).WithTags("Local");
+})
+.WithTags("Local");
 
 app.MapGet("/api/locales", (ILocalRepository repo) =>
 {
@@ -561,32 +564,38 @@ app.MapGet("/api/locales", (ILocalRepository repo) =>
         Capacidad = l.Capacidad,
         Telefono = l.Telefono
     }));
-}).WithTags("Local");
+})
+.WithTags("Local");
 
 
-app.MapGet("/locales/{localId}", (int IdLocal, ILocalRepository repo) =>
+app.MapGet("/api/locales/{localId}", (int localId, ILocalRepository repo) =>
 {
-    var l = repo.GetById(IdLocal);
+    var l = repo.GetById(localId); // <-- NOMBRE CONSISTENTE
     return l is null ? Results.NotFound() : Results.Ok(l);
-}).WithTags("Local");
+})
+.WithTags("Local");
 
-app.MapPut("/locales/{localId}", async (int IdLocal, Local local, ILocalRepository repo) =>
+app.MapPut("/api/locales/{localId}", (int localId, Local local, ILocalRepository repo) =>
 {
-    local.idLocal = IdLocal;
-
-    var existente = repo.GetById(IdLocal);
+    var existente = repo.GetById(localId);
     if (existente == null)
         return Results.NotFound("Local no encontrado.");
 
-    repo.Update(local); 
+    local.idLocal = localId;
+
+    repo.Update(local);
 
     return Results.Ok(local);
-}).WithTags("Local");
-app.MapDelete("/locales/{localId}", (int IdLocal, ILocalRepository repo) =>
+})
+.WithTags("Local");
+
+app.MapDelete("/api/locales/{localId}", (int localId, ILocalRepository repo) =>
 {
-    var ok = repo.Delete(IdLocal);
+    var ok = repo.Delete(localId);
     return ok ? Results.NoContent() : Results.BadRequest("No se puede eliminar (tiene funciones vigentes)");
-}).WithTags("Local");
+})
+.WithTags("Local");
+
 #endregion
 
 #region SECTOR

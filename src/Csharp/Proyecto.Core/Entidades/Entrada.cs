@@ -13,4 +13,5 @@ public class Entrada
     public int IdDetalleOrden { get; set; }
     public int IdSector { get; set; }
     public int IdFuncion { get; set; }
+    public int idCliente { get; set; }
 }

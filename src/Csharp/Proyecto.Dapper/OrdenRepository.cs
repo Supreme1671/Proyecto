@@ -22,8 +22,8 @@ public class OrdenRepository : IOrdenRepository
     {
         using var db = Connection;
         string sql = @"
-                INSERT INTO Orden (IdUsuario, FechaCreacion, Estado)
-                VALUES (@IdUsuario, @FechaCreacion, @Estado);
+                INSERT INTO Orden (idCliente, Fecha, Estado)
+                VALUES (@idCliente, @Fecha, @Estado);
                 SELECT LAST_INSERT_ID();";
 
         var id = db.ExecuteScalar<int>(sql, orden);
@@ -56,7 +56,7 @@ public class OrdenRepository : IOrdenRepository
         return ordenes;
     }
 
-    // Buscar por ID
+    // Eliminarpor ID
     public Orden? GetById(int idOrden)
     {
         using var db = Connection;
@@ -78,21 +78,21 @@ public class OrdenRepository : IOrdenRepository
         using var db = Connection;
         string sql = @"
                 UPDATE Orden 
-                SET IdUsuario = @IdUsuario,
-                    Estado = @Estado
+                SET idCliente = @idCliente,
+                Estado = @Estado
                 WHERE IdOrden = @IdOrden;";
         db.Execute(sql, orden);
     }
 
     // Marcar como Pagada
-    public void Pagar(int idOrden)
-    {
-        using var db = Connection;
-        string sql = "UPDATE Orden SET Estado = 'Pagada' WHERE IdOrden = @IdOrden;";
-        db.Execute(sql, new { IdOrden = idOrden });
-    }
+   public void Pagar(int idOrden)
+{
+    using var db = Connection;
+    string sql = "UPDATE Orden SET Estado = 'Pagada' WHERE IdOrden = @IdOrden;";
+    db.Execute(sql, new { IdOrden = idOrden });
+}
 
-    // Cancelar orden
+    // Crear orden
     public void Cancelar(int idOrden)
     {
         using var db = Connection;
@@ -100,8 +100,13 @@ public class OrdenRepository : IOrdenRepository
         db.Execute(sql, new { IdOrden = idOrden });
     }
 
-    bool IOrdenRepository.Pagar(int idOrden)
-    {
-        throw new NotImplementedException();
-    }
+  bool IOrdenRepository.Pagar(int idOrden)
+{
+    using var db = Connection;
+    string sql = "UPDATE Orden SET Estado = 'Pagada' WHERE IdOrden = @IdOrden;";
+    
+    int filas = db.Execute(sql, new { IdOrden = idOrden });
+    return filas > 0;
+}
+
 }

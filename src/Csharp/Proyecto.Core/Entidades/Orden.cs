@@ -4,7 +4,7 @@ public class Orden
 {
     public int idOrden { get; set; }
     public DateTime Fecha { get; set; }
-    public string Estado { get; set; }
+    public string Estado { get; set; } = "Pendiente";
     public int idCliente { get; set; }
     public int NumeroOrden { get; set; }
     public Cliente Cliente { get; set; } = default!;

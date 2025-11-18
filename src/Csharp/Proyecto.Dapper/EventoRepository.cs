@@ -31,54 +31,58 @@ namespace Proyecto.Core.Repositorios.ReposDapper
                 "SELECT * FROM Evento WHERE idEvento = @Id", new { Id = idEvento });
         }
 
-        public void Add(Evento evento)
-        {
-            using var db = Connection;
-            string sql = @"INSERT INTO Evento (Nombre, Descripcion, Fecha, Estado)
-                           VALUES (@Nombre, @Descripcion, @Fecha, @Estado)";
-            db.Execute(sql, evento);
-        }
-
-        public void Update(Evento evento)
-        {
-            using var db = Connection;
-            string sql = @"UPDATE Evento 
-                           SET Nombre=@Nombre, Descripcion=@Descripcion, Fecha=@Fecha 
-                           WHERE idEvento=@idEvento";
-            db.Execute(sql, evento);
-        }
-
         public void Publicar(int idEvento)
         {
             using var db = Connection;
             db.Execute("UPDATE Evento SET Estado='Publicado' WHERE idEvento=@Id", new { Id = idEvento });
         }
+       public bool Update(int idEvento, EventoUpdateDTO dto)
+{
+    using var db = Connection;
 
-        public void Cancelar(int idEvento)
+    string sql = @"
+        UPDATE Evento SET
+            Nombre = @Nombre,
+            Fecha = @Fecha,
+            idLocal = @idLocal
+        WHERE idEvento = @idEvento";
+
+    int rows = db.Execute(sql, new
+    {
+        dto.Nombre,
+        dto.Fecha,
+        dto.idLocal,
+        idEvento
+    });
+
+    return rows > 0;
+}
+
+
+   public bool Add(Evento evento)
+{
+    using var db = Connection;
+
+    string sql = @"
+        INSERT INTO Evento (Nombre, Fecha, Activo, idLocal)
+        VALUES (@Nombre, @Fecha, @Activo, @idLocal);
+
+        SELECT LAST_INSERT_ID();
+    ";
+
+    evento.idEvento = db.ExecuteScalar<int>(sql, evento);
+    return true;
+}
+
+
+        public bool Cancelar(int idEvento)
         {
             using var db = Connection;
-            db.Execute("UPDATE Evento SET Estado='Cancelado' WHERE idEvento=@Id", new { Id = idEvento });
+            string sql = @"UPDATE Evento SET Cancelado = 1 WHERE IdEvento = @idEvento";
+
+            int filas = db.Execute(sql, new { idEvento });
+            return filas > 0;
         }
 
-       public void Delete(int idEvento)
-        {
-            using var db = Connection;
-            db.Execute("DELETE FROM Evento WHERE idEvento=@Id", new { Id = idEvento });
-        }
-
-        public bool Update(int idEvento, EventoUpdateDTO dto)
-        {
-            throw new NotImplementedException();
-        }
-
-        bool IEventoRepository.Add(Evento evento)
-        {
-            throw new NotImplementedException();
-        }
-
-        bool IEventoRepository.Cancelar(int idEvento)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

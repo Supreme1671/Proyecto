@@ -86,7 +86,7 @@ CREATE TABLE Orden (
 );
 
 CREATE TABLE DetalleOrden (
-    IdDetalleOrden INT AUTO_INCREMENT PRIMARY KEY,
+    IdDetalleOrden INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     IdOrden INT NOT NULL,
     IdEvento INT NOT NULL,
     IdTarifa INT NOT NULL,
@@ -108,11 +108,13 @@ CREATE TABLE Entrada (
     IdSector INT NOT NULL,
     IdFuncion INT NOT NULL,
     IdTarifa INT NOT NULL,
+    idCliente INT NOT NULL,
     Estado VARCHAR(50) NOT NULL DEFAULT 'Disponible',
     Foreign Key (IdTarifa) REFERENCES Tarifa(idTarifa) ON DELETE CASCADE,
     FOREIGN KEY (IdDetalleOrden) REFERENCES DetalleOrden(IdDetalleOrden) ON DELETE CASCADE,
     FOREIGN KEY (IdSector) REFERENCES Sector(idSector) ON DELETE CASCADE,
-    FOREIGN KEY (IdFuncion) REFERENCES Funcion(IdFuncion) ON DELETE CASCADE
+    FOREIGN KEY (IdFuncion) REFERENCES Funcion(IdFuncion) ON DELETE CASCADE,
+    Foreign Key (idCLiente) REFERENCES Cliente(idCliente) on DElete cascade
 );
 
 CREATE TABLE QR (

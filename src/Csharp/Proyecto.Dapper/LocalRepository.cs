@@ -34,24 +34,29 @@ public class LocalRepository : ILocalRepository
     {
         using var connection = new MySqlConnection(_connectionString);
         return connection.QueryFirstOrDefault<Local>(
-            "SELECT * FROM Local WHERE idLocal = @id", new { idLocal });
+            "SELECT * FROM Local WHERE idLocal = @idLocal", 
+            new { idLocal }
+        );
     }
 
     public int Add(Local local)
-{
-    using var connection = new MySqlConnection(_connectionString);
-    var sql = @"
-        INSERT INTO Local (Nombre, Direccion, Capacidad, Telefono)
-        VALUES (@Nombre, @Direccion, @Capacidad, @Telefono);
-        SELECT LAST_INSERT_ID();";
-    return connection.ExecuteScalar<int>(sql, local);
-}
+    {
+        using var connection = new MySqlConnection(_connectionString);
+        var sql = @"
+            INSERT INTO Local (Nombre, Direccion, Capacidad, Telefono)
+            VALUES (@Nombre, @Direccion, @Capacidad, @Telefono);
+            SELECT LAST_INSERT_ID();";
+        return connection.ExecuteScalar<int>(sql, local);
+    }
 
     public void Update(Local local)
     {
         using var connection = new MySqlConnection(_connectionString);
         var sql = @"UPDATE Local 
-                        SET Nombre = @Nombre, Direccion = @Direccion, Capacidad = @Capacidad, Telefono = @Telefono
+                        SET Nombre = @Nombre, 
+                            Direccion = @Direccion, 
+                            Capacidad = @Capacidad, 
+                            Telefono = @Telefono
                         WHERE idLocal = @idLocal";
         connection.Execute(sql, local);
     }
@@ -59,7 +64,7 @@ public class LocalRepository : ILocalRepository
     public bool Delete(int idLocal)
     {
         using var connection = new MySqlConnection(_connectionString);
-        var sql = "DELETE FROM Local WHERE idLocal = @id";
+        var sql = "DELETE FROM Local WHERE idLocal = @idLocal";
         return connection.Execute(sql, new { idLocal }) > 0;
     }
 
@@ -67,9 +72,9 @@ public class LocalRepository : ILocalRepository
     {
         using var connection = new MySqlConnection(_connectionString);
         var sql = @"SELECT COUNT(*) 
-                        FROM Funcion 
-                        WHERE idLocal = @id AND Estado = 'Activa'";
+                    FROM Funcion 
+                    WHERE idLocal = @idLocal 
+                      AND Estado = 'Activa'";
         return connection.ExecuteScalar<int>(sql, new { idLocal }) > 0;
     }
-
 }
