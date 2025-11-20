@@ -36,9 +36,9 @@ namespace Proyecto.Core.Repositorios.ReposDapper
         {
             using var db = Connection;
             var sql = @"
-                INSERT INTO Funcion (Descripcion, FechaHora, Entradas) 
-                VALUES (@Descripcion, @FechaHora, @Entradas);
-                SELECT LAST_INSERT_ID();";
+            INSERT INTO Funcion (Descripcion, FechaHora, IdEvento, IdLocal)
+            VALUES (@Descripcion, @FechaHora, @IdEvento, @IdLocal);
+            SELECT LAST_INSERT_ID();";
             funcion.IdFuncion = db.ExecuteScalar<int>(sql, funcion);
         }
 
@@ -46,11 +46,12 @@ namespace Proyecto.Core.Repositorios.ReposDapper
         {
             using var db = Connection;
             var sql = @"
-                UPDATE Funcion 
-                SET Descripcion=@Descripcion, FechaHora=@FechaHora, Entradas=@Entradas
-                WHERE idFuncion=@IdFuncion";
+            UPDATE Funcion
+            SET Descripcion=@Descripcion, FechaHora=@FechaHora, IdEvento=@IdEvento, IdLocal=@IdLocal
+            WHERE IdFuncion=@IdFuncion";
             db.Execute(sql, funcion);
         }
+
 
         public void Delete(int idFuncion)
         {

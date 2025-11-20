@@ -135,14 +135,16 @@ app.MapPost("/api/clientes", (ClienteCreateDTO dto, IClienteRepository repo) =>
     if (string.IsNullOrWhiteSpace(dto.Email))
         return Results.BadRequest("El email es obligatorio.");
 
-    var cliente = new Cliente
-    {
-        DNI = dto.DNI,
-        Nombre = dto.Nombre,
-        Apellido = dto.Apellido,
-        Email = dto.Email,
-        Telefono = dto.Telefono
-    };
+ var cliente = new Cliente
+{
+    idCliente = dto.idCliente,
+    DNI = dto.DNI,
+    Nombre = dto.Nombre,
+    Apellido = dto.Apellido,
+    Email = dto.Email,
+    Telefono = dto.Telefono
+};
+
 
     repo.Add(cliente);
 
@@ -216,6 +218,7 @@ app.MapPut("/api/clientes/{idCliente}", (int idCliente, ClienteUpdateDTO dto, IC
     if (string.IsNullOrWhiteSpace(dto.Email))
         return Results.BadRequest("El email es requerido.");
 
+    
     cliente.DNI = dto.DNI;
     cliente.Nombre = dto.Nombre;
     cliente.Apellido = dto.Apellido;
@@ -424,18 +427,20 @@ app.MapPost("/api/entradas", (EntradaCreateDTO dto, IEntradaRepository repo) =>
 #endregion
 
 #region EVENTOS
-app.MapPost("/eventos", (EventoDTO dto, IEventoRepository repo) =>
+app.MapPost("/eventos", (EventoCreateDTO dto, IEventoRepository repo) =>
 {
    var evento = new Evento
-{
-    Nombre = dto.Nombre,
-    Fecha = dto.Fecha,
-    Activo = dto.Activo,
-    idLocal = dto.idLocal
-};
+   {
+        Nombre = dto.Nombre,
+        Fecha = dto.Fecha,
+        Tipo = dto.Tipo,
+        Descripcion = dto.Descripcion,
+        Activo = true,
+        idLocal = dto.idLocal
+   };
 
-var idEvento = repo.Add(evento);
-return Results.Created($"/eventos/{idEvento}", evento);
+   var idEvento = repo.Add(evento);
+   return Results.Created($"/eventos/{idEvento}", evento);
 
 }).WithTags("Eventos");
 
@@ -447,10 +452,13 @@ app.MapGet("/api/eventos", (IEventoRepository repo) =>
         idEvento = e.idEvento,
         Nombre = e.Nombre,
         Fecha = e.Fecha,
+        Tipo = e.Tipo,
+        Descripcion = e.Descripcion,
         Activo = e.Activo,
-        idLocal = e.Local?.idLocal ?? 0
+        idLocal = e.idLocal
     }));
 }).WithTags("Eventos");
+
 
 app.MapGet("/eventos/{eventoId}", (int idEvento, IEventoRepository repo) =>
 {
@@ -464,6 +472,7 @@ app.MapPut("/eventos/{eventoId}", (int IdEvento, EventoUpdateDTO dto, IEventoRep
     return ok ? Results.NoContent() : Results.NotFound();
 }).WithTags("Eventos");
 
+
 app.MapPost("/api/eventos", (EventoCreateDTO dto, IEventoRepository repo) =>
 {
     var ev = new Evento
@@ -471,7 +480,6 @@ app.MapPost("/api/eventos", (EventoCreateDTO dto, IEventoRepository repo) =>
         Nombre = dto.Nombre,
         Fecha = dto.Fecha,
         Activo = true,
-        Lugar = dto.Lugar,
     };
     repo.Add(ev);
     return Results.Created($"/api/eventos/{ev.idEvento}", ev);

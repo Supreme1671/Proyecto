@@ -46,12 +46,13 @@ CREATE TABLE Evento (
     idEvento INT AUTO_INCREMENT PRIMARY KEY,
     Nombre VARCHAR(100) NOT NULL,
     Fecha DATETIME NOT NULL,
-    Lugar VARCHAR(100) NOT NULL,
-    Tipo VARCHAR(50) NOT NULL,
+    Tipo VARCHAR(50) NOT NULL DEFAULT 'General',
+    Descripcion VARCHAR(255) DEFAULT '',
     Activo BOOLEAN NOT NULL DEFAULT TRUE,
     idLocal INT NOT NULL,
     FOREIGN KEY (idLocal) REFERENCES Local(idLocal) ON DELETE CASCADE
 );
+
 
 CREATE TABLE Funcion (
     IdFuncion INT AUTO_INCREMENT PRIMARY KEY,
@@ -110,11 +111,11 @@ CREATE TABLE Entrada (
     IdTarifa INT NOT NULL,
     idCliente INT NOT NULL,
     Estado VARCHAR(50) NOT NULL DEFAULT 'Disponible',
-    Foreign Key (IdTarifa) REFERENCES Tarifa(idTarifa) ON DELETE CASCADE,
+    FOREIGN KEY (IdTarifa) REFERENCES Tarifa(idTarifa) ON DELETE CASCADE,
     FOREIGN KEY (IdDetalleOrden) REFERENCES DetalleOrden(IdDetalleOrden) ON DELETE CASCADE,
     FOREIGN KEY (IdSector) REFERENCES Sector(idSector) ON DELETE CASCADE,
     FOREIGN KEY (IdFuncion) REFERENCES Funcion(IdFuncion) ON DELETE CASCADE,
-    Foreign Key (idCLiente) REFERENCES Cliente(idCliente) on DElete cascade
+    FOREIGN KEY (idCliente) REFERENCES Cliente(idCliente) ON DELETE CASCADE
 );
 
 CREATE TABLE QR (
@@ -124,7 +125,6 @@ CREATE TABLE QR (
     FechaCreacion DATETIME NOT NULL,
     CONSTRAINT FK_QR_Entrada FOREIGN KEY (IdEntrada) REFERENCES Entrada(idEntrada)
 );
-
 
 CREATE TABLE UsuarioRol (
     IdUsuario INT NOT NULL,

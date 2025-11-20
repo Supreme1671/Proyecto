@@ -26,13 +26,14 @@ public class ClienteRepository : IClienteRepository
         return clientes;
     }
 
-    Cliente? IClienteRepository.GetById(int DNI)
-    {
-        using var db = Connection;
-        return db.QueryFirstOrDefault<Cliente>("SELECT * FROM Cliente WHERE DNI=@DNI", new { dni = DNI });
-    }
-
-
+   Cliente? IClienteRepository.GetById(int idCliente)
+{
+    using var db = Connection;
+    return db.QueryFirstOrDefault<Cliente>(
+        "SELECT * FROM Cliente WHERE idCliente = @idCliente",
+        new { idCliente }
+    );
+}
     public void Add(Cliente cliente)
     {
         using var connection = new MySqlConnection(_connectionString);

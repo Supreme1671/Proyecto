@@ -1,4 +1,4 @@
-using Proyecto.Core.DTOs;
+ using Proyecto.Core.DTOs;
 using Proyecto.Core.Entidades;
 namespace Proyecto.Core.Repositorios;
 

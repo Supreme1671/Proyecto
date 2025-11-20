@@ -2,9 +2,11 @@ namespace Proyecto.Core.DTOs;
 
 public class EventoDTO
 {
-    public int idEvento { get; set; }
-    public string Nombre { get; set; }
-    public DateTime Fecha { get; set; }
-    public bool Activo { get; set; }
-    public int idLocal { get; set; }
+public int idEvento { get; set; }
+public string Nombre { get; set; }
+public DateTime Fecha { get; set; }
+public string Tipo { get; set; }
+public string Descripcion { get; set; }
+public bool Activo { get; set; }
+public int idLocal { get; set; }
 }

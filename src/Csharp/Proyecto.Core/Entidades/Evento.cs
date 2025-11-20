@@ -5,11 +5,10 @@ public class Evento
     public int idEvento { get; set; }
     public required string Nombre { get; set; }
     public DateTime Fecha { get; set; }
-    public string Lugar { get; set; }
     public string Tipo { get; set; }
     public int idLocal { get; set; }
     public Local? Local { get; set; }
     public bool Activo { get; set; }
 
-    public int Descripcion { get; set; }
+    public string Descripcion { get; set; } = "";
 }

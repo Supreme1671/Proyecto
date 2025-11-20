@@ -5,9 +5,8 @@ namespace Proyecto.Core.Repositorios;
 public interface IClienteRepository
 {
     IEnumerable<Cliente> GetAll();
-    Cliente? GetById(int DNI);
+    Cliente? GetById(int idCliente);
     void Add(Cliente cliente);
     void Update(Cliente cliente);
-    void Delete(int DNI);
-
+    void Delete(int idCliente);
 }
