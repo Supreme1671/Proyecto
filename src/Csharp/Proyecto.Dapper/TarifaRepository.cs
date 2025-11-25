@@ -21,19 +21,20 @@ public class TarifaRepository : ITarifaRepository
 {
     using var connection = new MySqlConnection(_connectionString);
 
-    var sql = @"
-        INSERT INTO Tarifa (Precio, Descripcion, idSector, idFuncion, idEvento)
-        VALUES (@Precio, @Descripcion, @idSector, @idFuncion, @idEvento);
-    ";
+  var sql = @"
+    INSERT INTO Tarifa (Precio, Descripcion, idSector, idFuncion, idEvento)
+    VALUES (@Precio, @Descripcion, @idSector, @idFuncion, @idEvento);
+";
 
-    connection.Execute(sql, new
-    {
-        Precio = tarifa.Precio,
-        Descripcion = tarifa.Nombre,
-        IdSector = tarifa.idSector,
-        IdFuncion = tarifa.idFuncion,
-        IdEvento = tarifa.idEvento
-    });
+connection.Execute(sql, new
+{
+    Precio = tarifa.Precio,
+    Descripcion = tarifa.Descripcion,
+    IdSector = tarifa.idSector,
+    IdFuncion = tarifa.idFuncion,
+    IdEvento = tarifa.idEvento
+});
+
 }
 void ITarifaRepository.Add(Tarifa tarifa)
 {

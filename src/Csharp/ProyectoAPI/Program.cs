@@ -639,7 +639,7 @@ app.MapPut("/sector/{sectorId}", (int IdSector, SectorDTO dto, ISectorRepository
 }).WithTags("Sector");
 
 
-app.MapDelete("/sector/{sectorId}", (int IdSector, ISectorRepository repo) =>
+app.MapDelete("/sector/{IdSector}", (int IdSector, ISectorRepository repo) =>
 {
     var ok = repo.Delete(IdSector);
     return ok ? Results.NoContent() : Results.BadRequest("Sector con tarifas/funciones asociadas");
@@ -649,15 +649,22 @@ app.MapDelete("/sector/{sectorId}", (int IdSector, ISectorRepository repo) =>
 #region TARIFAS
 app.MapPost("/api/tarifas", (TarifaCreateDTO dto, ITarifaRepository repo) =>
 {
-    var t = new Tarifa
-    {
-        Precio = dto.Precio,
-        idFuncion = dto.idFuncion
-    };
-    repo.Add(t);
-    return Results.Created($"/api/tarifas/{t.idTarifa}", t);
+var t = new Tarifa
+{
+Precio = dto.Precio,
+Descripcion = dto.Nombre,
+idFuncion = dto.idFuncion,
+idSector = dto.idSector,
+idEvento = dto.idEvento
+};
+
+repo.Add(t);
+return Results.Created($"/api/tarifas/{t.idTarifa}", t);
+
+
 }).WithTags("Tarifas");
-app.MapGet("/api/funciones/{funcionId}/tarifas", (int idFuncion, ITarifaRepository repo) =>
+
+app.MapGet("/api/funcion/{idFuncion}/tarifas", (int idFuncion, ITarifaRepository repo) =>
 {
     var tarifas = repo.GetByFuncionId(idFuncion);
     return Results.Ok(tarifas.Select(t => new TarifaDTO
@@ -669,15 +676,15 @@ app.MapGet("/api/funciones/{funcionId}/tarifas", (int idFuncion, ITarifaReposito
 }).WithTags("Tarifas");
 
 
-app.MapPut("/tarifas/{tarifaId}", (int IdTarifa, TarifaUpdateDTO dto, ITarifaRepository repo) =>
+app.MapPut("/tarifa/{idTarifa}", (int IdTarifa, TarifaUpdateDTO dto, ITarifaRepository repo) =>
 {
     var ok = repo.Update(IdTarifa, dto);
     return ok ? Results.NoContent() : Results.NotFound();
 }).WithTags("Tarifas");
 
-app.MapGet("/tarifas/{tarifaId}", (int tarifaId, ITarifaRepository repo) =>
+app.MapGet("/tarifa/{idTarifa}", (int idTarifa, ITarifaRepository repo) =>
 {
-    var t = repo.GetById(tarifaId);
+    var t = repo.GetById(idTarifa);
     return t is null ? Results.NotFound() : Results.Ok(t);
 }).WithTags("Tarifas");
 #endregion

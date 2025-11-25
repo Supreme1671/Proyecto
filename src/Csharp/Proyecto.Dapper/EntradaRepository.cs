@@ -27,7 +27,7 @@ namespace Proyecto.Core.Repositorios.ReposDapper
         public Entrada? GetById(int idEntrada)
         {
             using var db = Connection;
-            string sql = "SELECT * FROM Entrada WHERE idEntrada = @idEntrada;";
+            string sql = "SELECT * FROM Entrada WHERE IdEntrada = @IdEntrada;";
             return db.QueryFirstOrDefault<Entrada>(sql, new { idEntrada });
         }
 
@@ -43,20 +43,20 @@ namespace Proyecto.Core.Repositorios.ReposDapper
                 Anulada = @Anulada,
                 Numero = @Numero,
                 QR = @QR
-            WHERE idEntrada = @idEntrada;";
+            WHERE IdEntrada = @IdEntrada;";
             db.Execute(sql, entrada);
         }
 
         public void Anular(int idEntrada)
         {
             using var db = Connection;
-            string sqlCheck = "SELECT Estado FROM Entrada WHERE idEntrada = @idEntrada;";
+            string sqlCheck = "SELECT Estado FROM Entrada WHERE IdEntrada = @IdEntrada;";
             var estado = db.QueryFirstOrDefault<string>(sqlCheck, new { idEntrada });
 
             if (estado == null) throw new Exception("La entrada no existe.");
             if (estado == "Anulada") throw new Exception("La entrada ya está anulada.");
 
-            string sqlUpdate = "UPDATE Entrada SET Estado = 'Anulada' WHERE idEntrada = @idEntrada;";
+            string sqlUpdate = "UPDATE Entrada SET Estado = 'Anulada' WHERE IdEntrada = @IdEntrada;";
             db.Execute(sqlUpdate, new { idEntrada });
         }
         public int Add(Entrada entrada)
@@ -66,9 +66,9 @@ namespace Proyecto.Core.Repositorios.ReposDapper
 
     var sql = @"
         INSERT INTO Entrada
-            (Precio, IdTarifa, IdFuncion, Estado, Usada, Anulada, Numero, IdSector, IdDetalleOrden, idCliente, QR)
+            (Precio, idTarifa, idFuncion, Estado, Usada, Anulada, Numero, idSector, IdDetalleOrden, idCliente, QR)
         VALUES
-            (@Precio, @IdTarifa, @IdFuncion, @Estado, @Usada, @Anulada, @Numero, @IdSector, @IdDetalleOrden, @IdCliente, @Qr);
+            (@Precio, @idTarifa, @idFuncion, @Estado, @Usada, @Anulada, @Numero, @idSector, @IdDetalleOrden, @idCliente, @Qr);
         SELECT LAST_INSERT_ID();";
 
     // Dapper mapeará int? -> NULL automáticamente si es null
@@ -91,8 +91,11 @@ namespace Proyecto.Core.Repositorios.ReposDapper
 }
 
         void IEntradaRepository.Add(Entrada entrada)
-        {
-            throw new NotImplementedException();
-        }
+{
+    
+    var id = this.Add(entrada);
+    entrada.IdEntrada = id;
+}
+
     }
 }
