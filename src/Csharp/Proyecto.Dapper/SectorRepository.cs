@@ -13,63 +13,88 @@ public class SectorRepository : ISectorRepository
 
     public SectorRepository(IConfiguration configuration)
     {   
-            _connectionString = configuration.GetConnectionString("MySqlConnection");
+        _connectionString = configuration.GetConnectionString("MySqlConnection");
     }
+
     private IDbConnection Connection => new MySqlConnection(_connectionString);
 
-     public void Add(Sector sector)
+    public void Add(Sector sector)
     {
         using var db = Connection;
-        string sql = "INSERT INTO Sectores (Nombre, idLocal ) VALUES (@Nombre, @idLocal );";
-        db.Execute(sql, new { sector.Nombre, sector.idLocal  });
+        string sql = @"
+            INSERT INTO Sector (Nombre, IdLocal, Capacidad, Precio)
+            VALUES (@Nombre, @IdLocal, @Capacidad, @Precio);";
+        
+        db.Execute(sql, sector);
     }
-
 
     public IEnumerable<Sector> GetAll()
     {
         using var db = Connection;
-        string sql = "SELECT * FROM Sectores;";
+        string sql = "SELECT * FROM Sector;";
         return db.Query<Sector>(sql);
     }
-
 
     public Sector? GetById(int idSector)
     {
         using var db = Connection;
-        string sql = "SELECT * FROM Sectores WHERE Id = @Id;";
+        string sql = "SELECT * FROM Sector WHERE idSector = @Id;";
         return db.QueryFirstOrDefault<Sector>(sql, new { Id = idSector });
     }
-
 
     public void Update(Sector sector)
     {
         using var db = Connection;
-        string sql = "UPDATE Sectores SET Nombre = @Nombre WHERE Id = @Id;";
-        db.Execute(sql, new { sector.Nombre, Id = sector.idSector });
+        string sql = @"
+            UPDATE Sector 
+            SET Nombre = @Nombre, Capacidad = @Capacidad, Precio = @Precio
+            WHERE idSector = @idSector;";
+        
+        db.Execute(sql, sector);
     }
-
 
     public void Delete(int idSector)
     {
         using var db = Connection;
-        string sql = "DELETE FROM Sectores WHERE Id = @Id;";
+        string sql = "DELETE FROM Sector WHERE idSector = @Id;";
         db.Execute(sql, new { Id = idSector });
     }
 
     public void Add(int idLocal, Sector sector)
     {
-               using var db = Connection;
-        string sql = "INSERT INTO Sectores (Nombre, idLocal ) VALUES (@Nombre, @idLocal );";
-        db.Execute(sql, new { sector.Nombre, sector.idLocal  });
+        using var db = Connection;
+        string sql = @"
+            INSERT INTO Sector (Nombre, IdLocal)
+            VALUES (@Nombre, @IdLocal);";
+        
+        db.Execute(sql, new { sector.Nombre, IdLocal = idLocal });
     }
 
     public bool Update(int idSector, SectorDTO dto)
     {
-        throw new NotImplementedException();
+        using var db = Connection;
+
+        string sql = @"
+            UPDATE Sector 
+            SET Nombre = @Nombre, Capacidad = @Capacidad, Precio = @Precio
+            WHERE idSector = @Id;";
+
+        int res = db.Execute(sql, new
+        {
+            dto.Nombre,
+            dto.Capacidad,
+            dto.Precio,
+            Id = idSector
+        });
+
+        return res > 0;
     }
 
     bool ISectorRepository.Delete(int idSector)
     {
-        throw new NotImplementedException();
+        using var db = Connection;
+        string sql = "DELETE FROM Sector WHERE idSector = @Id;";
+        int res = db.Execute(sql, new { Id = idSector });
+        return res > 0;
     }
 }

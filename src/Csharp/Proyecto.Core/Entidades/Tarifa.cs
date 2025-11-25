@@ -6,8 +6,9 @@ public class Tarifa
     public decimal Precio { get; set; }
     public string Descripcion { get; set; } = string.Empty;
     public int idSector { get; set; }
-    public int IdFuncion { get; set; }
-    public int IdEvento { get; set; }
+    public int idFuncion { get; set; }
+    public int idEvento { get; set; }
+    public string Nombre { get; set; } = string.Empty;
     public Sector Sector { get; set; } = default!;
     public Funcion Funcion { get; set; } = default!;
 }

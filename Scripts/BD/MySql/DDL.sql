@@ -55,11 +55,11 @@ CREATE TABLE Evento (
 
 
 CREATE TABLE Funcion (
-    IdFuncion INT AUTO_INCREMENT PRIMARY KEY,
+    idFuncion INT AUTO_INCREMENT PRIMARY KEY,
     Descripcion VARCHAR(255) DEFAULT '',
     FechaHora DATETIME NOT NULL,
-    IdEvento INT NOT NULL,
-    IdLocal INT NOT NULL,
+    idEvento INT NOT NULL,
+    idLocal INT NOT NULL,
     FOREIGN KEY (IdEvento) REFERENCES Evento(idEvento) ON DELETE CASCADE,
     FOREIGN KEY (IdLocal) REFERENCES Local(idLocal) ON DELETE CASCADE
 );
@@ -69,8 +69,8 @@ CREATE TABLE Tarifa (
     Precio DECIMAL(10,2) NOT NULL,
     Descripcion VARCHAR(255) DEFAULT '',
     idSector INT NOT NULL,
-    IdFuncion INT NOT NULL,
-    IdEvento INT NOT NULL,
+    idFuncion INT NOT NULL,
+    idEvento INT NOT NULL,
     FOREIGN KEY (idSector) REFERENCES Sector(idSector) ON DELETE CASCADE,
     FOREIGN KEY (IdFuncion) REFERENCES Funcion(IdFuncion) ON DELETE CASCADE,
     FOREIGN KEY (IdEvento) REFERENCES Evento(idEvento) ON DELETE CASCADE
@@ -81,16 +81,17 @@ CREATE TABLE Orden (
     Fecha DATETIME NOT NULL,
     Estado VARCHAR(50) NOT NULL,
     idCliente INT NOT NULL,
-    NumeroOrden INT NOT NULL,
+    NumeroOrden INT NOT NULL DEFAULT 0,
     Total DECIMAL(10,2) NOT NULL DEFAULT 0,
     FOREIGN KEY (idCliente) REFERENCES Cliente(idCliente) ON DELETE CASCADE
 );
 
+
 CREATE TABLE DetalleOrden (
     IdDetalleOrden INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    IdOrden INT NOT NULL,
-    IdEvento INT NOT NULL,
-    IdTarifa INT NOT NULL,
+    idOrden INT NOT NULL,
+    idEvento INT NOT NULL,
+    idTarifa INT NOT NULL,
     Cantidad INT NOT NULL,
     PrecioUnitario DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (IdOrden) REFERENCES Orden(idOrden) ON DELETE CASCADE,
@@ -105,11 +106,11 @@ CREATE TABLE Entrada (
     Anulada BOOLEAN DEFAULT FALSE,
     Usada BOOLEAN DEFAULT FALSE,
     Numero VARCHAR(10) NOT NULL,
-    IdDetalleOrden INT NOT NULL,
-    IdSector INT NOT NULL,
-    IdFuncion INT NOT NULL,
-    IdTarifa INT NOT NULL,
-    idCliente INT NOT NULL,
+    IdDetalleOrden INT NULL,
+    idSector INT  NULL,
+    idFuncion INT  NULL,
+    idTarifa INT NULL,
+    idCliente INT NULL,
     Estado VARCHAR(50) NOT NULL DEFAULT 'Disponible',
     FOREIGN KEY (IdTarifa) REFERENCES Tarifa(idTarifa) ON DELETE CASCADE,
     FOREIGN KEY (IdDetalleOrden) REFERENCES DetalleOrden(IdDetalleOrden) ON DELETE CASCADE,

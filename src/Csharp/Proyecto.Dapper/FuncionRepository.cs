@@ -39,7 +39,7 @@ namespace Proyecto.Core.Repositorios.ReposDapper
             INSERT INTO Funcion (Descripcion, FechaHora, IdEvento, IdLocal)
             VALUES (@Descripcion, @FechaHora, @IdEvento, @IdLocal);
             SELECT LAST_INSERT_ID();";
-            funcion.IdFuncion = db.ExecuteScalar<int>(sql, funcion);
+            funcion.idFuncion = db.ExecuteScalar<int>(sql, funcion);
         }
 
         public void Update(Funcion funcion)

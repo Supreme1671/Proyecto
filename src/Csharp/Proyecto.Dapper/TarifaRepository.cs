@@ -17,41 +17,62 @@ public class TarifaRepository : ITarifaRepository
 
     private IDbConnection Connection => new MySqlConnection(_connectionString);
 
-     public void Add(Tarifa tarifa)
-        {
-            using var db = Connection;
-            const string sql = @"INSERT INTO Tarifa (IdFuncion, Precio, Stock, Activa)
-                                 VALUES (@IdFuncion, @Precio, @Stock, @Activa);";
-            db.Execute(sql, tarifa);
-        }
+  public void Add(Tarifa tarifa)
+{
+    using var connection = new MySqlConnection(_connectionString);
 
-    public IEnumerable<Tarifa> GetByFuncionId(int idFuncion)
+    var sql = @"
+        INSERT INTO Tarifa (Precio, Descripcion, idSector, idFuncion, idEvento)
+        VALUES (@Precio, @Descripcion, @idSector, @idFuncion, @idEvento);
+    ";
+
+    connection.Execute(sql, new
     {
-        using var db = Connection;
-        string sql = "SELECT * FROM Tarifa WHERE idFuncion = @funcionId;";
-        return db.Query<Tarifa>(sql, new { idFuncion });
-    }
+        Precio = tarifa.Precio,
+        Descripcion = tarifa.Nombre,
+        IdSector = tarifa.idSector,
+        IdFuncion = tarifa.idFuncion,
+        IdEvento = tarifa.idEvento
+    });
+}
+void ITarifaRepository.Add(Tarifa tarifa)
+{
+    Add(tarifa);
+}
+
+
+
+ public IEnumerable<Tarifa> GetByFuncionId(int idFuncion)
+{
+    using var db = Connection;
+    string sql = "SELECT * FROM Tarifa WHERE IdFuncion = @idFuncion;";
+    return db.Query<Tarifa>(sql, new { idFuncion });
+}
 
     public Tarifa GetById(int idTarifa)
     {
         using var db = Connection;
-        string sql = "SELECT * FROM Tarifa WHERE idTarifa = @tarifaId;";
+        string sql = "SELECT * FROM Tarifa WHERE idTarifa = @idTarifa;";
         return db.QueryFirstOrDefault<Tarifa>(sql, new { idTarifa });
     }
 
     public void Update(Tarifa tarifa)
-    {
-        using var db = Connection;
-        string sql = @"UPDATE Tarifa
-                           SET Precio = @Precio,
-                               Stock = @Stock,
-                               Activa = @Activa
-                           WHERE idTarifa = @idTarifa;";
-        db.Execute(sql, tarifa);
-    }
+{
+    using var db = Connection;
+    string sql = @"
+        UPDATE Tarifa
+        SET Precio = @Precio,
+            Stock = @Stock,
+            Activa = @Activa
+        WHERE idTarifa = @idTarifa;
+    ";
+    db.Execute(sql, tarifa);
+}
 
     public bool Update(int idTarifa, TarifaUpdateDTO dto)
     {
         throw new NotImplementedException();
     }
+
+
 }

@@ -59,24 +59,40 @@ namespace Proyecto.Core.Repositorios.ReposDapper
             string sqlUpdate = "UPDATE Entrada SET Estado = 'Anulada' WHERE idEntrada = @idEntrada;";
             db.Execute(sqlUpdate, new { idEntrada });
         }
-        public void Add(Entrada entrada)
-        {
-            using var db = Connection;
-            string sql = @"
-        INSERT INTO Entrada (Precio, idFuncion, idCliente, Usada, Anulada, Numero, QR)
-        VALUES (@Precio, @idFuncion, @idCliente, @Usada, @Anulada, @Numero, @QR);
+        public int Add(Entrada entrada)
+{
+    using var connection = new MySqlConnection(_connectionString);
+    connection.Open();
+
+    var sql = @"
+        INSERT INTO Entrada
+            (Precio, IdTarifa, IdFuncion, Estado, Usada, Anulada, Numero, IdSector, IdDetalleOrden, idCliente, QR)
+        VALUES
+            (@Precio, @IdTarifa, @IdFuncion, @Estado, @Usada, @Anulada, @Numero, @IdSector, @IdDetalleOrden, @IdCliente, @Qr);
         SELECT LAST_INSERT_ID();";
 
-            entrada.IdEntrada = db.ExecuteScalar<int>(sql, new
-            {
-                Precio = entrada.Precio,
-                idFuncion = entrada.IdFuncion,
-                idCliente = entrada.idCliente,
-                Usada = entrada.Usada,
-                Anulada = entrada.Anulada,
-                Numero = entrada.Numero,
-                QR = entrada.QR
-            });
+    // Dapper mapeará int? -> NULL automáticamente si es null
+    var id = connection.ExecuteScalar<int>(sql, new
+    {
+        Precio = entrada.Precio,
+        IdTarifa = entrada.idTarifa,
+        IdFuncion = entrada.idFuncion,
+        Estado = string.IsNullOrWhiteSpace(entrada.Estado) ? "Disponible" : entrada.Estado,
+        Usada = entrada.Usada,
+        Anulada = entrada.Anulada,
+        Numero = entrada.Numero,
+        IdSector = entrada.idSector,
+        IdDetalleOrden = entrada.IdDetalleOrden,
+        IdCliente = entrada.idCliente,
+        Qr = entrada.QR
+    });
+
+    return id;
+}
+
+        void IEntradaRepository.Add(Entrada entrada)
+        {
+            throw new NotImplementedException();
         }
     }
 }
