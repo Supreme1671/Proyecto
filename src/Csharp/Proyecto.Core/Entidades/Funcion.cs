@@ -7,5 +7,6 @@ public class Funcion
     public DateTime FechaHora { get; set; }
     public int idEvento { get; set; }
     public int idLocal { get; set; }
+    public int Activo { get; set; } = 1;
     public List<Entrada> Entradas { get; set; } = new();
 }

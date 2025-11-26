@@ -1,13 +1,14 @@
- using Proyecto.Core.DTOs;
+using Proyecto.Core.DTOs;
 using Proyecto.Core.Entidades;
-namespace Proyecto.Core.Repositorios;
 
-public interface IFuncionRepository
+namespace Proyecto.Core.Repositorios
 {
-    IEnumerable<Funcion> GetAll();
-    Funcion? GetById(int IdFuncion);
-    void Add(Funcion funcion);
-    void Update(Funcion funcion);
-    void Delete(int IdFuncion);
-    bool Update(int idFuncion, FuncionUpdateDTO dto);
+    public interface IFuncionRepository
+    {
+        IEnumerable<Funcion> GetAll();
+        Funcion? GetById(int idFuncion);
+        void Add(Funcion funcion);
+        bool Update(int idFuncion, FuncionUpdateDTO dto);
+        bool Cancelar(int idFuncion);
+    }
 }

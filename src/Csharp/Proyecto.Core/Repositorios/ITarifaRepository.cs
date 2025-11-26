@@ -7,7 +7,6 @@ namespace Proyecto.Core.Repositorios
         void Add(Tarifa tarifa);
         IEnumerable<Tarifa> GetByFuncionId(int idFuncion);
         Tarifa? GetById(int idTarifa);
-        void Update(Tarifa tarifa);
         bool Update(int idTarifa, TarifaUpdateDTO dto);
     }
 }

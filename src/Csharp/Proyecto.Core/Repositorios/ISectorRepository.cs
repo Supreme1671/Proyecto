@@ -1,14 +1,14 @@
 using Proyecto.Core.Entidades;
 using Proyecto.Core.DTOs;
-namespace Proyecto.Core.Repositorios;
 
-public interface ISectorRepository
+namespace Proyecto.Core.Repositorios
 {
-    IEnumerable<Sector> GetAll();
-    Sector? GetById(int idSector);
-    void Add(Sector sector);
-    void Update(Sector sector);
-    bool Delete(int idSector);
-    void Add(int idLocal, Sector sector);
-    bool Update(int idSector, SectorDTO dto);
+    public interface ISectorRepository
+    {
+        IEnumerable<Sector> GetByLocal(int idLocal);
+        void Add(int idLocal, Sector sector);
+        bool Update(int idSector, SectorUpdateDTO dto);
+        bool Delete(int idSector);
+        Sector? GetById(int idSector);
+    }
 }

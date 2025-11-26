@@ -48,7 +48,7 @@ CREATE TABLE Evento (
     Fecha DATETIME NOT NULL,
     Tipo VARCHAR(50) NOT NULL DEFAULT 'General',
     Descripcion VARCHAR(255) DEFAULT '',
-    Activo BOOLEAN NOT NULL DEFAULT TRUE,
+    Activo INT NOT NULL DEFAULT TRUE,
     idLocal INT NOT NULL,
     FOREIGN KEY (idLocal) REFERENCES Local(idLocal) ON DELETE CASCADE
 );
@@ -58,6 +58,7 @@ CREATE TABLE Funcion (
     idFuncion INT AUTO_INCREMENT PRIMARY KEY,
     Descripcion VARCHAR(255) DEFAULT '',
     FechaHora DATETIME NOT NULL,
+    Activo INT NOT NULL DEFAULT TRUE,
     idEvento INT NOT NULL,
     idLocal INT NOT NULL,
     FOREIGN KEY (IdEvento) REFERENCES Evento(idEvento) ON DELETE CASCADE,
@@ -68,6 +69,8 @@ CREATE TABLE Tarifa (
     idTarifa INT AUTO_INCREMENT PRIMARY KEY,
     Precio DECIMAL(10,2) NOT NULL,
     Descripcion VARCHAR(255) DEFAULT '',
+    Stock INT NOT NULL DEFAULT 0,
+    Activo INT NOT NULL DEFAULT TRUE,
     idSector INT NOT NULL,
     idFuncion INT NOT NULL,
     idEvento INT NOT NULL,

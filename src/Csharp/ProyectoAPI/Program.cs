@@ -13,6 +13,7 @@ using Proyecto.Core.Servicios.Interfaces;
 using Proyecto.Dapper;
 using System.Data;
 using MySqlConnector;
+using Repositorios.Repos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -468,30 +469,38 @@ app.MapGet("/eventos/{eventoId}", (int idEvento, IEventoRepository repo) =>
     return e is null ? Results.NotFound() : Results.Ok(e);
 }).WithTags("Eventos");
 
-app.MapPut("/eventos/{eventoId}", (int IdEvento, EventoUpdateDTO dto, IEventoRepository repo) =>
+app.MapPut("/eventos/{eventoId}", (int idEvento, EventoUpdateDTO dto, IEventoRepository repo) =>
 {
-    var ok = repo.Update(IdEvento, dto);
+    var ok = repo.Update(idEvento, dto);
     return ok ? Results.NoContent() : Results.NotFound();
 }).WithTags("Eventos");
 
-
-app.MapPost("/api/eventos", (EventoCreateDTO dto, IEventoRepository repo) =>
+app.MapPost("/eventos/{eventoId}/publicar", (int idEvento, IEventoRepository repo) =>
 {
-    var ev = new Evento
+    try
     {
-        Nombre = dto.Nombre,
-        Fecha = dto.Fecha,
-        Activo = true,
-    };
-    repo.Add(ev);
-    return Results.Created($"/api/eventos/{ev.idEvento}", ev);
+        repo.Publicar(idEvento);
+        return Results.Ok(new { mensaje = "Evento publicado correctamente." });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
 }).WithTags("Eventos");
 
-app.MapPost("/eventos/{eventoId}/cancelar", (int IdEvento, IEventoRepository repo) =>
+
+app.MapPost("/eventos/{eventoId}/cancelar", (int idEvento, IEventoRepository repo) =>
 {
-    var ok = repo.Cancelar(IdEvento);
-    return ok ? Results.Ok() : Results.NotFound();
+    var ok = repo.Cancelar(idEvento);
+
+    if (!ok)
+        return Results.BadRequest(new { error = "El evento ya está cancelado o no existe." });
+
+    return Results.Ok(new { mensaje = "Evento cancelado." });
 }).WithTags("Eventos");
+
+
+
 #endregion
 
 #region FUNCIONES
@@ -526,22 +535,35 @@ app.MapGet("/funciones/{funcionId}", (int IdFuncion, IFuncionRepository repo) =>
     return f is null ? Results.NotFound() : Results.Ok(f);
 }).WithTags("Funcion");
 
-app.MapPut("/funciones/{funcionId}", (int IdFuncion, FuncionUpdateDTO dto, IFuncionRepository repo) =>
+app.MapPut("/funciones/{idFuncion}", (int idFuncion, FuncionUpdateDTO dto, IFuncionRepository repo) =>
 {
-    var ok = repo.Update(IdFuncion, dto);
-    return ok ? Results.NoContent() : Results.NotFound();
+    bool ok = repo.Update(idFuncion, dto);
+
+    if (!ok)
+        return Results.NotFound(new { mensaje = "Función no encontrada." });
+
+    var funcionActualizada = repo.GetById(idFuncion);
+
+    return Results.Ok(funcionActualizada);
 }).WithTags("Funcion");
 
-app.MapPost("/funciones/{funcionId}/cancelar", (int IdFuncion, IFuncionRepository repo) =>
+
+app.MapPost("/funciones/{funcionId}/cancelar", (int funcionId, IFuncionRepository repo) =>
 {
-   var existente = repo.GetById(IdFuncion);
-if (existente == null) return Results.NotFound();
+    var funcion = repo.GetById(funcionId);
+    if (funcion is null)
+        return Results.NotFound(new { mensaje = "La función no existe." });
 
-repo.Update(existente);
+    if (funcion.Activo == 0)
+        return Results.BadRequest(new { mensaje = "La función ya está cancelada." });
 
-return Results.NoContent();
+    bool ok = repo.Cancelar(funcionId);
+    if (!ok)
+        return Results.BadRequest(new { mensaje = "No se pudo cancelar la función." });
 
+    return Results.Ok(new { mensaje = "Función cancelada correctamente." });
 }).WithTags("Funcion");
+
 #endregion
 
 #region LOCAL
@@ -609,41 +631,57 @@ app.MapDelete("/api/locales/{localId}", (int localId, ILocalRepository repo) =>
 #endregion
 
 #region SECTOR
-app.MapPost("/api/sector", (SectorCreateDTO dto, ISectorRepository repo) =>
+
+app.MapPost("/locales/{localId}/sectores", (int idLocal, SectorCreateDTO dto, ISectorRepository repo) =>
 {
-    var s = new Sector
+    var sector = new Sector
     {
         Nombre = dto.Nombre,
-        idLocal = dto.idLocal,
-        Capacidad = dto.Capacidad, 
+        idLocal = idLocal,
+        Capacidad = dto.Capacidad,
         Precio = dto.Precio
     };
-    repo.Add(s);
-    return Results.Created($"/api/sectores/{s.idSector}", s);
+
+    repo.Add(idLocal, sector);
+
+    return Results.Created($"/sectores/{sector.idSector}", sector);
 }).WithTags("Sector");
-app.MapGet("/api/sector", (ISectorRepository repo) =>
+
+
+app.MapGet("/locales/{localId}/sectores", (int idLocal, ISectorRepository repo) =>
 {
-    var sectores = repo.GetAll();
+    var sectores = repo.GetByLocal(idLocal);
+
     return Results.Ok(sectores.Select(s => new SectorDTO
     {
         idSector = s.idSector,
         Nombre = s.Nombre,
-        idLocal = s.idLocal
+        idLocal = s.idLocal,
+        Capacidad = s.Capacidad,
+        Precio = s.Precio
     }));
 }).WithTags("Sector");
 
-app.MapPut("/sector/{sectorId}", (int IdSector, SectorDTO dto, ISectorRepository repo) =>
+app.MapPut("/sectores/{sectorId}", (int idSector, SectorUpdateDTO dto, ISectorRepository repo) =>
 {
-    var ok = repo.Update(IdSector, dto);
-    return ok ? Results.NoContent() : Results.NotFound();
+    bool actualizado = repo.Update(idSector, dto);
+
+    if (!actualizado)
+        return Results.NotFound("Sector no encontrado");
+
+    var sector = repo.GetById(idSector);
+    return Results.Ok(sector);
 }).WithTags("Sector");
 
-
-app.MapDelete("/sector/{IdSector}", (int IdSector, ISectorRepository repo) =>
+app.MapDelete("/sectores/{sectorId}", (int idSector, ISectorRepository repo) =>
 {
-    var ok = repo.Delete(IdSector);
-    return ok ? Results.NoContent() : Results.BadRequest("Sector con tarifas/funciones asociadas");
+    bool borrado = repo.Delete(idSector);
+
+    return borrado
+        ? Results.NoContent()
+        : Results.BadRequest("Sector con tarifas/funciones asociadas");
 }).WithTags("Sector");
+
 #endregion
 
 #region TARIFAS
@@ -676,9 +714,9 @@ app.MapGet("/api/funcion/{idFuncion}/tarifas", (int idFuncion, ITarifaRepository
 }).WithTags("Tarifas");
 
 
-app.MapPut("/tarifa/{idTarifa}", (int IdTarifa, TarifaUpdateDTO dto, ITarifaRepository repo) =>
+app.MapPut("/tarifa/{idTarifa}", (int idTarifa, TarifaUpdateDTO dto, ITarifaRepository repo) =>
 {
-    var ok = repo.Update(IdTarifa, dto);
+    var ok = repo.Update(idTarifa, dto);
     return ok ? Results.NoContent() : Results.NotFound();
 }).WithTags("Tarifas");
 

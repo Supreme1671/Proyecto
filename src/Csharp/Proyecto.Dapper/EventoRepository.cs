@@ -28,61 +28,82 @@ namespace Proyecto.Core.Repositorios.ReposDapper
         {
             using var db = Connection;
             return db.QueryFirstOrDefault<Evento>(
-                "SELECT * FROM Evento WHERE idEvento = @Id", new { Id = idEvento });
+                "SELECT * FROM Evento WHERE idEvento = @Id",
+                new { Id = idEvento });
         }
 
-        public void Publicar(int idEvento)
+        public int Add(Evento evento)
         {
             using var db = Connection;
-            db.Execute("UPDATE Evento SET Estado='Publicado' WHERE idEvento=@Id", new { Id = idEvento });
+
+            string sql = @"
+                INSERT INTO Evento (Nombre, Fecha, Activo, idLocal)
+                VALUES (@Nombre, @Fecha, @Activo, @idLocal);
+                SELECT LAST_INSERT_ID();
+            ";
+
+            return db.ExecuteScalar<int>(sql, evento);
         }
-       public bool Update(int idEvento, EventoUpdateDTO dto)
+
+        public bool Update(int idEvento, EventoUpdateDTO dto)
+        {
+            using var db = Connection;
+
+            string sql = @"
+                UPDATE Evento SET
+                    Nombre = @Nombre,
+                    Fecha = @Fecha,
+                    idLocal = @idLocal
+                WHERE idEvento = @idEvento";
+
+            int rows = db.Execute(sql, new
+            {
+                dto.Nombre,
+                dto.Fecha,
+                dto.idLocal,
+                idEvento
+            });
+
+            return rows > 0;
+        }
+
+public void Publicar(int idEvento)
 {
     using var db = Connection;
 
-    string sql = @"
-        UPDATE Evento SET
-            Nombre = @Nombre,
-            Fecha = @Fecha,
-            idLocal = @idLocal
-        WHERE idEvento = @idEvento";
+    var estado = db.ExecuteScalar<int?>(
+        "SELECT Activo FROM Evento WHERE idEvento = @id",
+        new { id = idEvento }
+    );
 
-    int rows = db.Execute(sql, new
-    {
-        dto.Nombre,
-        dto.Fecha,
-        dto.idLocal,
-        idEvento
-    });
+    if (estado == -1)
+        throw new Exception("No se puede publicar un evento cancelado.");
+
+    db.Execute("UPDATE Evento SET Activo = 1 WHERE idEvento=@id", new { id = idEvento });
+}
+
+       public bool Cancelar(int idEvento)
+{
+    using var db = Connection;
+
+    var estado = db.ExecuteScalar<int?>(
+        "SELECT Activo FROM Evento WHERE idEvento = @id",
+        new { id = idEvento }
+    );
+
+    if (estado is null)
+        return false; // No existe
+
+    if (estado == -1)
+        return false; // Ya está cancelado
+
+    int rows = db.Execute(
+        "UPDATE Evento SET Activo = -1 WHERE idEvento = @id",
+        new { id = idEvento }
+    );
 
     return rows > 0;
 }
-
-
-   public bool Add(Evento evento)
-{
-    using var db = Connection;
-
-    string sql = @"
-        INSERT INTO Evento (Nombre, Fecha, Activo, idLocal)
-        VALUES (@Nombre, @Fecha, @Activo, @idLocal);
-
-        SELECT LAST_INSERT_ID();
-    ";
-
-    evento.idEvento = db.ExecuteScalar<int>(sql, evento);
-    return true;
-}
-
-
-        public bool Cancelar(int idEvento)
-        {
-            using var db = Connection;
-            string sql = @"UPDATE Evento SET Cancelado = 1 WHERE IdEvento = @idEvento";
-
-            int filas = db.Execute(sql, new { idEvento });
-            return filas > 0;
-        }
-
+    
     }
 }

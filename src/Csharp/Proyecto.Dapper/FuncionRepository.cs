@@ -41,27 +41,41 @@ namespace Proyecto.Core.Repositorios.ReposDapper
             SELECT LAST_INSERT_ID();";
             funcion.idFuncion = db.ExecuteScalar<int>(sql, funcion);
         }
+       public bool Update(int idFuncion, FuncionUpdateDTO dto)
+{
+    using var db = Connection;
 
-        public void Update(Funcion funcion)
-        {
-            using var db = Connection;
-            var sql = @"
-            UPDATE Funcion
-            SET Descripcion=@Descripcion, FechaHora=@FechaHora, IdEvento=@IdEvento, IdLocal=@IdLocal
-            WHERE IdFuncion=@IdFuncion";
-            db.Execute(sql, funcion);
-        }
+    var sql = @"
+        UPDATE Funcion
+        SET FechaHora = @Fecha,
+            IdLocal = @IdLocal
+        WHERE IdFuncion = @IdFuncion;
+    ";
 
+    int rows = db.Execute(sql, new
+    {
+        Fecha = dto.Fecha,
+        IdLocal = dto.idLocal,
+        IdFuncion = idFuncion
+    });
 
-        public void Delete(int idFuncion)
-        {
-            using var db = Connection;
-            db.Execute("DELETE FROM Funcion WHERE idFuncion=@idFuncion", new { idFuncion });
-        }
+    return rows > 0;
+}
 
-        public bool Update(int idFuncion, FuncionUpdateDTO dto)
-        {
-            throw new NotImplementedException();
-        }
+        public bool Cancelar(int idFuncion)
+{
+    using var db = Connection;
+
+    var sql = @"
+        UPDATE Funcion
+        SET Activo = 0
+        WHERE idFuncion = @idFuncion;
+    ";
+
+    int rows = db.Execute(sql, new { idFuncion });
+
+    return rows > 0;
+}
+
     }
 }
