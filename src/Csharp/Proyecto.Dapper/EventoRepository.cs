@@ -92,10 +92,10 @@ public void Publicar(int idEvento)
     );
 
     if (estado is null)
-        return false; // No existe
+        return false; 
 
     if (estado == -1)
-        return false; // Ya está cancelado
+        return false; 
 
     int rows = db.Execute(
         "UPDATE Evento SET Activo = -1 WHERE idEvento = @id",

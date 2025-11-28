@@ -9,9 +9,8 @@ public class Tarifa
     public int idFuncion { get; set; }
     public int idEvento { get; set; }
 
-    public int Stock { get; set; }  // NUEVO
-    public bool Activa { get; set; } // NUEVO
-
+    public int Stock { get; set; }  
+    public bool Activo { get; set; }    
     public Sector Sector { get; set; } = default!;
     public Funcion Funcion { get; set; } = default!;
 }

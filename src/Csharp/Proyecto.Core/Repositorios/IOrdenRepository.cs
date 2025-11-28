@@ -9,7 +9,6 @@ public interface IOrdenRepository
     void Update(Orden orden);
     bool Pagar(int idOrden);
 
-    void Cancelar(int IdOrden);
-    //void Add(Orden nueva);
+    bool Cancelar(int idOrden);
 }
 

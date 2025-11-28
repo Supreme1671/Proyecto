@@ -8,5 +8,6 @@ namespace Proyecto.Core.Repositorios
         IEnumerable<Tarifa> GetByFuncionId(int idFuncion);
         Tarifa? GetById(int idTarifa);
         bool Update(int idTarifa, TarifaUpdateDTO dto);
+        bool RestarStock(int idTarifa, int cantidad);
     }
 }

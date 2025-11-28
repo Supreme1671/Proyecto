@@ -237,35 +237,49 @@ return Results.Ok(cliente);
 #endregion
 
 #region ORDENES
-app.MapPost("/api/ordenes", (OrdenCreateDTO dto, IOrdenRepository repo) =>
+app.MapPost("/api/ordenes", (
+    OrdenCreateDTO dto,
+    IOrdenRepository repo,
+    ITarifaRepository tarifaRepo) =>
 {
     if (dto.idFuncion.Count != dto.idTarifa.Count ||
         dto.idTarifa.Count != dto.Cantidades.Count)
         return Results.BadRequest("Las listas idFunciones, idTarifas y Cantidades deben tener la misma longitud.");
 
-   var orden = new Orden
-{
-    idCliente = dto.IdCliente,
-    Fecha = DateTime.Now,
-    Total = 0,
-    Estado = "Pendiente",      
-    Detalles = new List<DetalleOrden>()
-};
-
-
-    for (int i = 0; i < dto.idFuncion.Count; i++)
+    var orden = new Orden
     {
-        var det = new DetalleOrden
+        idCliente = dto.IdCliente,
+        Fecha = DateTime.Now,
+        Estado = "Creada",
+        Detalles = new List<DetalleOrden>()
+    };
+
+    for (int i = 0; i < dto.idTarifa.Count; i++)
+    {
+        var tarifa = tarifaRepo.GetById(dto.idTarifa[i]);
+        if (tarifa is null)
+            return Results.BadRequest($"La tarifa {dto.idTarifa[i]} no existe");
+
+        if (tarifa.Stock < dto.Cantidades[i])
+            return Results.BadRequest($"No hay stock suficiente para la tarifa {dto.idTarifa[i]}");
+
+        // RESTAR STOCK
+        tarifaRepo.RestarStock(dto.idTarifa[i], dto.Cantidades[i]);
+
+        // ARMAR DETALLE CORRECTO
+        var detalle = new DetalleOrden
         {
-            IdEvento = dto.idFuncion[i],
             IdTarifa = dto.idTarifa[i],
             Cantidad = dto.Cantidades[i],
-            PrecioUnitario = 0
+            PrecioUnitario = tarifa.Precio,
+            IdEvento = tarifa.idEvento,
+            IdFuncion = tarifa.idFuncion
         };
 
-        orden.Detalles.Add(det);
+        orden.Detalles.Add(detalle);
     }
 
+    // CALCULAR TOTAL
     orden.Total = orden.Detalles.Sum(d => d.PrecioUnitario * d.Cantidad);
 
     repo.Add(orden);
@@ -291,23 +305,27 @@ app.MapPost("/api/ordenes", (OrdenCreateDTO dto, IOrdenRepository repo) =>
 .WithTags("Orden");
 
 
+
 app.MapGet("/api/ordenes", (IOrdenRepository repo) =>
 {
     var ordenes = repo.GetAll();
 
-    var salida = ordenes.Select(o => new OrdenDTO
+   var salida = ordenes.Select(o => new OrdenDTO
+{
+    IdOrden = o.idOrden,
+    IdCliente = o.idCliente,
+    Fecha = o.Fecha,
+    Total = o.Total,
+    Estado = o.Estado, 
+
+    Detalles = o.Detalles.Select(d => new DetalleOrdenDTO
     {
-        IdOrden = o.idOrden,
-        IdCliente = o.idCliente,
-        Fecha = o.Fecha,
-        Total = o.Total,
-        Detalles = o.Detalles.Select(d => new DetalleOrdenDTO
-        {
-            IdDetalleOrden = d.IdDetalleOrden,
-            idEvento = d.IdEvento,
-            idTarifa = d.IdTarifa,
-            Cantidad = d.Cantidad,
-        }).ToList()
+        IdDetalleOrden = d.IdDetalleOrden,
+        idEvento = d.IdEvento,
+        idTarifa = d.IdTarifa,
+        Cantidad = d.Cantidad,
+        PrecioUnitario = d.PrecioUnitario
+    }).ToList()
     });
 
     return Results.Ok(salida);
@@ -321,20 +339,22 @@ app.MapGet("/api/ordenes/{idOrden}", (int idOrden, IOrdenRepository repo) =>
     if (o is null)
         return Results.NotFound();
 
-    var dto = new OrdenDTO
+ var dto = new OrdenDTO
+{
+    IdOrden = o.idOrden,
+    IdCliente = o.idCliente,
+    Fecha = o.Fecha,
+    Total = o.Total,
+    Estado = o.Estado,  
+
+    Detalles = o.Detalles.Select(d => new DetalleOrdenDTO
     {
-        IdOrden = o.idOrden,
-        IdCliente = o.idCliente,
-        Fecha = o.Fecha,
-        Total = o.Total,
-        Detalles = o.Detalles.Select(d => new DetalleOrdenDTO
-        {
-            IdDetalleOrden = d.IdDetalleOrden,
-            idEvento = d.IdEvento,
-            idTarifa = d.IdTarifa,
-            Cantidad = d.Cantidad,
-            PrecioUnitario = d.PrecioUnitario
-        }).ToList()
+        IdDetalleOrden = d.IdDetalleOrden,
+        idEvento = d.IdEvento,
+        idTarifa = d.IdTarifa,
+        Cantidad = d.Cantidad,
+        PrecioUnitario = d.PrecioUnitario
+    }).ToList()
     };
 
     return Results.Ok(dto);
@@ -345,16 +365,19 @@ app.MapGet("/api/ordenes/{idOrden}", (int idOrden, IOrdenRepository repo) =>
 app.MapPost("/api/ordenes/{idOrden}/pagar", (int idOrden, IOrdenRepository repo) =>
 {
     var ok = repo.Pagar(idOrden);
-    return ok ? Results.Ok("Orden pagada") : Results.BadRequest("No se pudo pagar la orden.");
+    return ok ? Results.Ok("Orden pagada.") : Results.BadRequest("No se pudo pagar la orden.");
 })
 .WithTags("Orden");
 
 app.MapPost("/api/ordenes/{idOrden}/cancelar", (int idOrden, IOrdenRepository repo) =>
 {
-    repo.Cancelar(idOrden);
-    return Results.Ok();
+    bool ok = repo.Cancelar(idOrden);
+    return ok
+        ? Results.Ok("Orden cancelada.")
+        : Results.BadRequest("La orden no se puede cancelar.");
 })
 .WithTags("Orden");
+
 
 #endregion 
 
@@ -687,20 +710,21 @@ app.MapDelete("/sectores/{sectorId}", (int idSector, ISectorRepository repo) =>
 #region TARIFAS
 app.MapPost("/api/tarifas", (TarifaCreateDTO dto, ITarifaRepository repo) =>
 {
-var t = new Tarifa
-{
-Precio = dto.Precio,
-Descripcion = dto.Nombre,
-idFuncion = dto.idFuncion,
-idSector = dto.idSector,
-idEvento = dto.idEvento
-};
+    var t = new Tarifa
+    {
+        Precio = dto.Precio,
+        Descripcion = dto.Nombre,
+        idFuncion = dto.idFuncion,
+        idSector = dto.idSector,
+        idEvento = dto.idEvento,
+        Stock = dto.Stock,
+        Activo = true
+    };
 
-repo.Add(t);
-return Results.Created($"/api/tarifas/{t.idTarifa}", t);
-
-
-}).WithTags("Tarifas");
+    repo.Add(t);
+    return Results.Created($"/api/tarifas/{t.idTarifa}", t);
+})
+.WithTags("Tarifas");
 
 app.MapGet("/api/funcion/{idFuncion}/tarifas", (int idFuncion, ITarifaRepository repo) =>
 {
@@ -709,7 +733,8 @@ app.MapGet("/api/funcion/{idFuncion}/tarifas", (int idFuncion, ITarifaRepository
     {
         idTarifa = t.idTarifa,
         Precio = t.Precio,
-        idFuncion = t.idFuncion
+        idFuncion = t.idFuncion,
+        Stock = t.Stock 
     }));
 }).WithTags("Tarifas");
 

@@ -7,17 +7,13 @@ INSERT INTO Local (Nombre, Direccion, Capacidad, Telefono) VALUES
 ('Estadio Único Diego Armando Maradona', 'Av. Pres. Juan Domingo Perón 3500, La Plata, Buenos Aires', 53000, '0221-66667777');
 
 -- 2. INSERTAR SECTORES
-
 INSERT INTO Sector (Nombre, Descripcion, Capacidad, Precio, idLocal) VALUES
 ('Platea Baja', 'Platea cerca del escenario', 5000, 2000, 1),
-('Platea Alta', 'Platea elevada', 8000, 1500, 2),
+('Platea Alta', 'Platea elevada', 8000, 1500, 1),
 ('VIP', 'Zona VIP', 500, 5000, 2),
 ('General', 'Asientos generales', 30000, 1000, 4),
 ('Tribuna Norte', 'Tribuna norte del estadio', 10000, 1200, 4),
-('Tribuna Sur', 'Tribuna sur del estadio', 10000, 1200, 5),
-('Ring', 'Alrededor del ring', 1000, 2500, 5),
 ('Palco', 'Palco privado', 200, 6000, 2);
-
 -- 3. INSERTAR CLIENTES
 
 INSERT INTO Cliente (DNI, Nombre, Apellido, Email, Telefono) VALUES
@@ -31,33 +27,29 @@ INSERT INTO Cliente (DNI, Nombre, Apellido, Email, Telefono) VALUES
 
 INSERT INTO Evento (Nombre, Fecha, Tipo, Descripcion, idLocal) VALUES
 ('Partido de Fútbol', '2025-11-01', 'Deporte', 'Partido oficial de liga', 1),
-('Concierto de Pop', '2025-10-20', 'Concierto', 'Presentación en vivo', 2),
+('Concierto de Pop', '2025-10-20', 'Concierto', 'Presentación en vivo', 1),
 ('Evento de Box', '2025-09-30', 'Deporte', 'Pelea profesional', 3),
 ('Festival de Música', '2025-12-25', 'Festival', 'Festival con múltiples artistas', 4);
 
-
 -- 5. INSERTAR FUNCIONES
 
-INSERT INTO Funcion (Descripcion, FechaHora, IdEvento, IdLocal) VALUES
-('Concierto Coldplay - Día 1', '2025-11-20 20:00:00', 1, 1),
-('Concierto Coldplay - Día 2', '2025-11-21 21:00:00', 1, 1),
-('Partido Argentina vs Brasil', '2025-11-30 18:00:00', 2, 2),
-('Concierto Taylor Swift', '2025-12-01 20:30:00', 3, 3),
-('Evento de Boxeo - Campeonato Mundial', '2025-12-03 21:00:00', 4, 4),
-('Obra de teatro - Romeo y Julieta', '2025-12-05 19:30:00', 3, 3),
-('Cine - Estreno Avengers 6', '2025-12-10 22:00:00', 3, 3),
-('Partido Boca vs River', '2025-12-15 17:00:00', 2, 2),
-('Concierto de Música Clásica', '2025-12-20 20:00:00', 5, 5),
-('Festival de Jazz', '2025-12-25 21:00:00', 5, 5);
+INSERT INTO Funcion (Descripcion, FechaHora, idEvento, IdLocal) VALUES
+('Concierto Coldplay - Día 1', '2025-11-20 20:00:00', 2, 1),
+('Concierto Coldplay - Día 2', '2025-11-21 21:00:00', 2, 1),
+('Partido Argentina vs Brasil', '2025-11-30 18:00:00', 1, 2),
+('Concierto Taylor Swift', '2025-12-01 20:30:00', 2, 3),
+('Evento de Boxeo - Campeonato Mundial', '2025-12-03 21:00:00', 3, 4),
+('Obra de teatro - Romeo y Julieta', '2025-12-05 19:30:00', 4, 4),
+('Cine - Estreno Avengers 6', '2025-12-10 22:00:00', 4, 4),
+('Partido Boca vs River', '2025-12-15 17:00:00', 1, 2);
 
 -- 6. INSERTAR TARIFAS
 
-INSERT INTO Tarifa (Precio, Descripcion, idSector, IdFuncion, IdEvento) VALUES
-(25000, 'Platea Baja - General', 1, 1, 1),
-(18000, 'Platea Alta - General', 2, 2, 1),
-(50000, 'Palco VIP', 3, 3, 2),
-(15000, 'Campo General', 4, 4, 3),
-(12000, 'Galería - Promoción', 5, 5, 4);
+INSERT INTO Tarifa (Precio, Descripcion, idSector, IdFuncion, idEvento) VALUES
+(25000, 'Platea Baja - Coldplay', 1, 1, 2),
+(18000, 'Platea Alta - Coldplay', 2, 2, 2),
+(50000, 'Palco VIP - Argentina vs Brasil', 3, 3, 1),
+(15000, 'Campo General - Boxeo', 4, 5, 3);
 
 -- 7. INSERTAR ÓRDENES
 
@@ -71,23 +63,19 @@ INSERT INTO Orden (Fecha, Total, Estado, idCliente, NumeroOrden) VALUES
 -- 8. INSERTAR DETALLE DE ÓRDENES
 
 INSERT INTO DetalleOrden (Cantidad, PrecioUnitario, IdOrden, IdEvento, IdTarifa) VALUES
-(2, 10000.00, 1, 1, 1),
-(1, 15000.00, 2, 2, 2),
-(3, 15000.00, 3, 3, 3),
-(2, 10000.00, 4, 4, 4),
-(1, 12000.00, 5, 5, 5);
+(2, 25000.00, 1, 2, 1),
+(1, 18000.00, 2, 2, 2),
+(3, 50000.00, 3, 1, 3),
+(2, 15000.00, 4, 3, 4);
 
 -- 9. INSERTAR ENTRADAS
-
 INSERT INTO Entrada (Precio, idTarifa, idFuncion, Estado, Usada, Anulada, Numero, idSector, IdDetalleOrden, idCliente) VALUES
-(15000, 1, 1, 'Disponible', TRUE, FALSE, '001', 1, 1, 1),
-(10000, 2, 2, 'Disponible', TRUE, FALSE, '002', 2, 2, 2),
-(10500, 3, 3, 'Disponible', TRUE, FALSE, '003', 3, 3, 3),
-(14000, 4, 4, 'Disponible', TRUE, FALSE, '004', 4, 4, 4),
-(15000, 5, 5, 'Disponible', TRUE, FALSE, '005', 5, 5, 5);
+(25000, 1, 1, 'Disponible', TRUE, FALSE, '001', 1, 1, 1),
+(18000, 2, 2, 'Disponible', TRUE, FALSE, '002', 2, 2, 2),
+(50000, 3, 3, 'Disponible', TRUE, FALSE, '003', 3, 3, 3),
+(15000, 4, 5, 'Disponible', TRUE, FALSE, '004', 4, 4, 4);
 
 -- 10. EJEMPLO DE CÓDIGO QR
-
 INSERT INTO QR (IdEntrada, Codigo, FechaCreacion) VALUES
 (1, 'QR_0001', NOW()),
 (2, 'QR_0002', NOW());

@@ -19,26 +19,35 @@ public class OrdenRepository : IOrdenRepository
 
     // Crear orden (INSERT)
     public void Add(Orden orden)
+{
+    using var db = Connection;
+
+    string sql = @"
+        INSERT INTO Orden (idCliente, Fecha, Estado)
+        VALUES (@idCliente, @Fecha, @Estado);
+        SELECT LAST_INSERT_ID();";
+
+    var id = db.ExecuteScalar<int>(sql, orden);
+    orden.idOrden = id;
+
+    // Insertar detalles
+    foreach (var detalle in orden.Detalles)
     {
-        using var db = Connection;
-        string sql = @"
-                INSERT INTO Orden (idCliente, Fecha, Estado)
-                VALUES (@idCliente, @Fecha, @Estado);
-                SELECT LAST_INSERT_ID();";
+        string sqlDetalle = @"
+            INSERT INTO DetalleOrden (idOrden, idEvento, idTarifa, Cantidad, PrecioUnitario)
+            VALUES (@idOrden, @idEvento, @idTarifa, @Cantidad, @PrecioUnitario);";
 
-        var id = db.ExecuteScalar<int>(sql, orden);
-        orden.idOrden = id;
+        detalle.IdOrden = id;
 
-        // Insertar detalles
-        foreach (var detalle in orden.Detalles)
-        {
-            string sqlDetalle = @"
-                    INSERT INTO DetalleOrden (idOrden, idEvento, Cantidad, PrecioUnitario)
-                    VALUES (@idOrden, @idEvento, @Cantidad, @PrecioUnitario);";
-            detalle.IdOrden = id;
-            db.Execute(sqlDetalle, detalle);
-        }
+        db.Execute(sqlDetalle, new {
+            idOrden = id,
+            idEvento = detalle.IdEvento,
+            idTarifa = detalle.IdTarifa,
+            Cantidad = detalle.Cantidad,
+            PrecioUnitario = detalle.PrecioUnitario
+        });
     }
+}
 
     // Listar todas las órdenes
     public IEnumerable<Orden> GetAll()
@@ -83,30 +92,30 @@ public class OrdenRepository : IOrdenRepository
                 WHERE idOrden = @idOrden;";
         db.Execute(sql, orden);
     }
-
-    // Marcar como Pagada
-   public void Pagar(int idOrden)
+bool IOrdenRepository.Pagar(int idOrden)
 {
     using var db = Connection;
     string sql = "UPDATE Orden SET Estado = 'Pagada' WHERE idOrden = @idOrden;";
-    db.Execute(sql, new { IdOrden = idOrden });
-}
 
-    // Crear orden
-    public void Cancelar(int idOrden)
-    {
-        using var db = Connection;
-        string sql = "UPDATE Orden SET Estado = 'Cancelada' WHERE idOrden = @idOrden AND Estado = 'Creada';";
-        db.Execute(sql, new { IdOrden = idOrden });
-    }
-
-  bool IOrdenRepository.Pagar(int idOrden)
-{
-    using var db = Connection;
-    string sql = "UPDATE Orden SET Estado = 'Pagada' WHERE idOrden = @idOrden;";
-    
-    int filas = db.Execute(sql, new { IdOrden = idOrden });
+    int filas = db.Execute(sql, new { idOrden });
     return filas > 0;
 }
+
+
+public bool Cancelar(int idOrden)
+{
+    using var db = Connection;
+
+    string sql = @"
+        UPDATE Orden 
+        SET Estado = 'Cancelada' 
+        WHERE idOrden = @idOrden AND Estado = 'Creada';
+    ";
+
+    int filas = db.Execute(sql, new { idOrden });
+
+    return filas > 0;
+}
+
 
 }
