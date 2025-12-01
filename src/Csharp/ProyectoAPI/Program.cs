@@ -138,7 +138,6 @@ app.MapPost("/api/clientes", (ClienteCreateDTO dto, IClienteRepository repo) =>
 
  var cliente = new Cliente
 {
-    idCliente = dto.idCliente,
     DNI = dto.DNI,
     Nombre = dto.Nombre,
     Apellido = dto.Apellido,
@@ -151,7 +150,6 @@ app.MapPost("/api/clientes", (ClienteCreateDTO dto, IClienteRepository repo) =>
 
     var clienteDTO = new ClienteDTO
     {
-        idCliente = cliente.idCliente,
         DNI = cliente.DNI,
         Nombre = cliente.Nombre,
         Apellido = cliente.Apellido,
@@ -263,10 +261,8 @@ app.MapPost("/api/ordenes", (
         if (tarifa.Stock < dto.Cantidades[i])
             return Results.BadRequest($"No hay stock suficiente para la tarifa {dto.idTarifa[i]}");
 
-        // RESTAR STOCK
         tarifaRepo.RestarStock(dto.idTarifa[i], dto.Cantidades[i]);
 
-        // ARMAR DETALLE CORRECTO
         var detalle = new DetalleOrden
         {
             IdTarifa = dto.idTarifa[i],
@@ -279,7 +275,6 @@ app.MapPost("/api/ordenes", (
         orden.Detalles.Add(detalle);
     }
 
-    // CALCULAR TOTAL
     orden.Total = orden.Detalles.Sum(d => d.PrecioUnitario * d.Cantidad);
 
     repo.Add(orden);
@@ -811,41 +806,51 @@ app.MapPost("/usuarios/{id}/roles/{rolId}", (int idUsuario, int rolId, IUsuarioR
 #endregion
 
 #region QR
-app.MapGet("/entradas/{idEntrada}/qr", (int idEntrada, QrService qrService, IEntradaRepository repo) =>
+app.MapGet("/entradas/{idEntrada}/qr",
+(int idEntrada, IQrService qrService, IEntradaRepository repo, IConfiguration config) =>
 {
     var entrada = repo.GetById(idEntrada);
-    if (entrada == null) return Results.NotFound("Entrada no existe");
+    if (entrada == null)
+        return Results.NotFound("Entrada no existe");
 
-    string qrContent = $"{entrada.IdEntrada}|{entrada.idFuncion}|{builder.Configuration["Qr:Key"]}";
-    var qrBytes = qrService.GenerarQrEntradaImagen(qrContent);
+    string qrContent = $"{entrada.IdEntrada}|{entrada.idFuncion}|{config["Qr:Key"]}";
+    var qrBytes = qrService.GenerarQr(qrContent);
+
     return Results.File(qrBytes, "image/png");
-}) .WithTags("QR");
+})
+.WithTags("QR");
 
-app.MapPost("/qr/lote", (List<int> idEntradas, QrService qrService, IEntradaRepository repo) =>
+
+app.MapPost("/qr/lote",
+(List<int> idEntradas, IQrService qrService, IEntradaRepository repo, IConfiguration config) =>
 {
     var resultados = new Dictionary<int, byte[]>();
+
     foreach (var idEntrada in idEntradas)
     {
         var entrada = repo.GetById(idEntrada);
         if (entrada == null) continue;
-        string qrContent = $"{entrada.IdEntrada}|{entrada.idFuncion}|{builder.Configuration["Qr:Key"]}";
-        var qrBytes = qrService.GenerarQrEntradaImagen(qrContent);
+
+        string qrContent = $"{entrada.IdEntrada}|{entrada.idFuncion}|{config["Qr:Key"]}";
+        var qrBytes = qrService.GenerarQr(qrContent);
+
         resultados.Add(entrada.IdEntrada, qrBytes);
     }
-    return Results.Ok(resultados);
-}).WithTags("QR");
 
-app.MapPost("/qr/validar", (string qrContent, QrService qrService) =>
+    return Results.Ok(resultados);
+})
+.WithTags("QR");
+
+
+app.MapPost("/qr/validar",
+(string qrContent, IQrService qrService) =>
 {
     var resultado = qrService.ValidarQr(qrContent);
-    return Results.Ok(resultado);
-}).WithTags("QR");
 
-app.MapPost("/api/qr/{idEntrada}", (int idEntrada, IQrService qrService) =>
-{
-    var qr = qrService.GenerarQr(idEntrada);
-    return Results.Ok(qr);
-}).WithTags("QR");
+    return Results.Ok(resultado);
+})
+.WithTags("QR");
+
 
 #endregion
 

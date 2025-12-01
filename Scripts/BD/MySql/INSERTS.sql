@@ -79,3 +79,5 @@ INSERT INTO Entrada (Precio, idTarifa, idFuncion, Estado, Usada, Anulada, Numero
 INSERT INTO QR (IdEntrada, Codigo, FechaCreacion) VALUES
 (1, 'QR_0001', NOW()),
 (2, 'QR_0002', NOW());
+
+SELECT * FROM `Cliente`

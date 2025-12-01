@@ -47,10 +47,12 @@ namespace Proyecto.Core.Servicios
                 FechaCreacion = qr.FechaCreacion
             };
         }
-
-        public byte[] GenerarQrEntradaImagen(string qrContent)
+        public byte[] GenerarQr(string qrContent)
         {
-            throw new NotImplementedException();
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrData = qrGenerator.CreateQrCode(qrContent, QRCodeGenerator.ECCLevel.Q);
+            PngByteQRCode qrCode = new PngByteQRCode(qrData);
+            return qrCode.GetGraphic(10);
         }
 
         public QrDTO ObtenerQrPorEntrada(int idEntrada)
@@ -67,7 +69,7 @@ namespace Proyecto.Core.Servicios
             };
         }
 
-        public object? ValidarQr(string qrContent)
+        QrDTO IQrService.ValidarQr(string qrContent)
         {
             throw new NotImplementedException();
         }

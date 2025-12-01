@@ -63,7 +63,6 @@ namespace Proyecto.Core.Repositorios.ReposDapper
 {
     using var connection = new MySqlConnection(_connectionString);
     connection.Open();
-
     var sql = @"
         INSERT INTO Entrada
             (Precio, idTarifa, idFuncion, Estado, Usada, Anulada, Numero, idSector, IdDetalleOrden, idCliente, QR)
