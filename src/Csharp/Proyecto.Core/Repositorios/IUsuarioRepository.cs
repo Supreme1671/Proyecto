@@ -4,11 +4,11 @@ namespace Proyecto.Core.Repositorios
 {
     public interface IUsuarioRepository
     {
-        Usuario? GetById(int idUsuario);
-        Usuario? Login(string nombreUsuario, string contrasena);
-        void Add(Usuario usuario);
-        IEnumerable<Rol> GetRoles(int idUsuario);
-        IEnumerable<Rol> GetAllRoles();
-        void AsignarRol(int idUsuario, int idRol);
+        bool ExisteUsuario(string email);
+        void InsertarUsuario(Usuario usuario);
+        Usuario? ObtenerUsuarioPorEmail(string email);
+        Usuario? ObtenerUsuarioPorId(int idUsuario);
+        void ActualizarRol(int idUsuario, string nuevoRol);
+        IEnumerable<string> ObtenerTodosLosRoles();
     }
 }

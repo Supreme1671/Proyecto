@@ -70,6 +70,7 @@ builder.Services.AddScoped<ISectorRepository, SectorRepository>();
 builder.Services.AddScoped<IEntradaRepository, EntradaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ITarifaRepository, TarifaRepository>();
+builder.Services.AddScoped<ITokenRepostory, TokenRepository>();
 builder.Services.AddScoped<IRolRepository, RolRepository>();
 builder.Services.AddScoped<IQRRepository, QRRepository>();
 builder.Services.AddScoped<IDbConnection>(sp =>
@@ -83,6 +84,10 @@ builder.Services.AddScoped<IQRRepository, QRRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<QrService>();
 builder.Services.AddScoped<IQrService, QrService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<TokenService>();
+
+builder.Services.AddHttpContextAccessor();
 
 
 builder.Services.AddAuthentication(options =>
@@ -747,62 +752,48 @@ app.MapGet("/tarifa/{idTarifa}", (int idTarifa, ITarifaRepository repo) =>
 }).WithTags("Tarifas");
 #endregion
 
-#region ROLES
-app.MapGet("/api/roles", (IRolRepository repo) => Results.Ok(repo.GetAll()))
-.WithTags("Roles");
-app.MapPost("/api/roles", (Rol r, IRolRepository repo) =>
+#region USUARIO
+app.MapPost("/auth/register", (UsuarioRegisterDTO dto, AuthService auth) =>
 {
-    repo.Add(r);
-    return Results.Created($"/api/roles/{r.IdRol}", r);
-}) .WithTags("Roles");
-#endregion
-
-#region USUARIOS
-app.MapPost("/Usuario/register", (UsuarioRegisterDTO dto, AuthService auth) =>
-{
-    var id = auth.Register(dto);
-    return Results.Created($"/usuarios/{id}", dto);
+    var resultado = auth.Register(dto);
+    return Results.Ok(resultado);
 }).WithTags("Usuario");
 
-app.MapPost("/auth/login", (UsuarioLoginDTO login, IUsuarioRepository repo) =>
+app.MapPost("/auth/login", (UsuarioLoginDTO dto, AuthService auth) =>
 {
-    var usuario = repo.Login(login.NombreUsuario, login.Contrasena);
-    if (usuario is null) return Results.Unauthorized();
-
-    return Results.Ok(new UsuarioDTO
-    {
-        idUsuario = usuario.IdUsuario,
-        NombreUsuario = usuario.NombreUsuario,
-    });
+    var resultado = auth.Login(dto);
+    return Results.Ok(resultado);
 }).WithTags("Usuario");
-
-app.MapPost("/usuarios", (Usuario nuevoUsuario, IUsuarioRepository repo) =>
-{
-    repo.Add(nuevoUsuario);
-    return Results.Created($"/usuarios/{nuevoUsuario.IdUsuario}", nuevoUsuario);
-}).WithTags("Usuario");
-
 
 app.MapPost("/auth/refresh", (RefreshDTO dto, AuthService auth) =>
 {
-    var token = auth.Refresh(dto);
-    return token is null ? Results.Unauthorized() : Results.Ok(token);
+    var resultado = auth.Refresh(dto);
+    return Results.Ok(resultado);
 }).WithTags("Usuario");
 
-app.MapGet("/usuarios/{id}/roles", (int idUsuario, IUsuarioRepository repo) =>
+app.MapPost("/auth/logout", (RefreshDTO dto, AuthService auth) =>
 {
-    var roles = repo.GetRoles(idUsuario);
-    return Results.Ok(roles);
+    var resultado = auth.Logout(dto);
+    return Results.Ok(resultado);
 }).WithTags("Usuario");
 
-app.MapGet("/roles", (IUsuarioRepository repo) => Results.Ok(repo.GetAllRoles()))
-.WithTags("Usuario");
-
-app.MapPost("/usuarios/{id}/roles/{rolId}", (int idUsuario, int rolId, IUsuarioRepository repo) =>
+app.MapGet("/auth/me", (AuthService auth) =>
 {
-    repo.AsignarRol(idUsuario, rolId);
-    return Results.Ok(new { mensaje = "Rol asignado correctamente" });
-}).WithTags("Roles");
+    var resultado = auth.Me();
+    return Results.Ok(resultado);
+}).WithTags("Usuario");
+
+app.MapGet("/auth/roles", (AuthService auth) =>
+{
+    var resultado = auth.Roles();
+    return Results.Ok(resultado);
+}).WithTags("Usuario");
+
+app.MapPost("/usuarios/{id}/roles", (int IdUsuario, string rol, AuthService auth) =>
+{
+    var resultado = auth.AsignarRol(IdUsuario, rol);
+    return Results.Ok(resultado);
+}).WithTags("Usuario");
 #endregion
 
 #region QR

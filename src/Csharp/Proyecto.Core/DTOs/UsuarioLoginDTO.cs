@@ -4,5 +4,6 @@ namespace Proyecto.Core.DTOs
     {
         public required string NombreUsuario  { get; set; }
         public required string Contrasena { get; set; }
+        public string Email { get; set; }
     }
 }

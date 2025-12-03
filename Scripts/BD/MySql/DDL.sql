@@ -143,5 +143,6 @@ CREATE TABLE Token (
     IdUsuario INT NOT NULL,
     TokenRefresh VARCHAR(500) NOT NULL,
     FechaExpiracion DATETIME NOT NULL,
+    Email VARCHAR(100) NOT NULL UNIQUE,
     FOREIGN KEY (IdUsuario) REFERENCES Usuario(IdUsuario) ON DELETE CASCADE
 );
