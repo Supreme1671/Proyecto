@@ -14,6 +14,8 @@ using Proyecto.Dapper;
 using System.Data;
 using MySqlConnector;
 using Repositorios.Repos;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,7 +91,6 @@ builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddHttpContextAccessor();
 
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -101,9 +102,14 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuer = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
+
         ValidateAudience = false,
+
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+        ),
+
         ValidateLifetime = true
     };
 });
@@ -763,7 +769,8 @@ app.MapPost("/auth/login", (UsuarioLoginDTO dto, AuthService auth) =>
 {
     var resultado = auth.Login(dto);
     return Results.Ok(resultado);
-}).WithTags("Usuario");
+})
+.WithTags("Usuario");
 
 app.MapPost("/auth/refresh", (RefreshDTO dto, AuthService auth) =>
 {
@@ -777,17 +784,29 @@ app.MapPost("/auth/logout", (RefreshDTO dto, AuthService auth) =>
     return Results.Ok(resultado);
 }).WithTags("Usuario");
 
-app.MapGet("/auth/me", (AuthService auth) =>
+app.MapGet("/auth/me", (ClaimsPrincipal user) =>
 {
-    var resultado = auth.Me();
-    return Results.Ok(resultado);
-}).WithTags("Usuario");
+    if (!user.Identity!.IsAuthenticated)
+        return Results.Unauthorized();
 
-app.MapGet("/auth/roles", (AuthService auth) =>
+    return Results.Ok(new
+    {
+        success = true,
+        message = "Estás autenticado",
+        usuario = user.Identity.Name
+    });
+})
+.RequireAuthorization()
+.WithTags("Usuario");
+
+app.MapGet("/auth/roles", () =>
 {
-    var resultado = auth.Roles();
-    return Results.Ok(resultado);
-}).WithTags("Usuario");
+    var roles = new[] { "Administrador", "Cliente", "Empleado" };
+    return Results.Ok(roles);
+})
+.RequireAuthorization()
+.WithTags("Usuario");
+
 
 app.MapPost("/usuarios/{id}/roles", (int IdUsuario, string rol, AuthService auth) =>
 {

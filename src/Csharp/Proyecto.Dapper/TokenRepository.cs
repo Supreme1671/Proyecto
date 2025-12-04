@@ -16,29 +16,30 @@ public class TokenRepository : ITokenRepostory
     }
 
     public int InsertarToken(Token token)
-    {
-        using var connection = new MySqlConnection(_connectionString);
+{
+    using var connection = new MySqlConnection(_connectionString);
 
-        string sql = @"
-            INSERT INTO Token (TokenHash, Email, Expiracion)
-            VALUES (@TokenHash, @Email, @Expiracion);
-            SELECT LAST_INSERT_ID();
-        ";
+    string sql = @"
+    INSERT INTO Token (IdUsuario, TokenRefresh, TokenHash, Email, FechaExpiracion)
+    VALUES (@IdUsuario, @TokenRefresh, @TokenHash, @Email, @FechaExpiracion);
+    SELECT LAST_INSERT_ID();
+";
 
-        return connection.QuerySingle<int>(sql, token);
-    }
+
+    return connection.QuerySingle<int>(sql, token);
+}
 
     public Token? ObtenerToken(string token)
-    {
-        using var connection = new MySqlConnection(_connectionString);
+{
+    using var connection = new MySqlConnection(_connectionString);
 
-        string sql = @"
-            SELECT * FROM Token 
-            WHERE TokenHash = @TokenHash;
-        ";
+    string sql = @"
+        SELECT * FROM Token 
+        WHERE TokenRefresh = @Token;
+    ";
 
-        return connection.QueryFirstOrDefault<Token>(sql, new { TokenHash = token });
-    }
+    return connection.QueryFirstOrDefault<Token>(sql, new { Token = token });
+}
 
     public void EliminarToken(string token)
     {
@@ -63,17 +64,18 @@ public class TokenRepository : ITokenRepostory
         using var connection = new MySqlConnection(_connectionString);
 
         string sql = @"
-            UPDATE Token
-            SET TokenHash = @NuevoHash,
-                Expiracion = @Expiracion
-            WHERE Email = (SELECT Email FROM Usuario WHERE IdUsuario = @IdUsuario)
-        ";
+    UPDATE Token
+    SET TokenHash = @NuevoHash,
+        FechaExpiracion = @FechaExpiracion
+    WHERE Email = (SELECT Email FROM Usuario WHERE IdUsuario = @IdUsuario)
+";
 
-        connection.Execute(sql, new
-        {
-            NuevoHash = nuevoHash,
-            Expiracion = expiracion,
-            IdUsuario = IdUsuario
-        });
+connection.Execute(sql, new
+{
+    NuevoHash = nuevoHash,
+    FechaExpiracion = expiracion,
+    idUsuario = IdUsuario
+});
+
     }
 }

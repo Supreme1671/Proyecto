@@ -8,5 +8,5 @@ public class Usuario
     public string Contrasena { get; set; } = string.Empty;
     public bool Activo { get; set; }
 
-   public string Rol { get; set; } = "Cliente";
+    public string Roles { get; set; } = "Cliente";
 }

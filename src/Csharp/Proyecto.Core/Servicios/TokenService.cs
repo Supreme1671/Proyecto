@@ -20,39 +20,45 @@ public class TokenService
         }
 
         public string GenerarToken(Usuario usuario)
+{
+        var claims = new[]
         {
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.Name, usuario.Email),
-                new Claim(ClaimTypes.Role, string.IsNullOrEmpty(usuario.Rol.ToString()) ? "Cliente" : usuario.Rol.ToString()),
-                new Claim("NombreUsuario", usuario.NombreUsuario)
-            };
+        new Claim(ClaimTypes.Name, usuario.Email),
+        new Claim(ClaimTypes.Role, string.IsNullOrEmpty(usuario.Roles) ? "Cliente" : usuario.Roles),
+        new Claim("NombreUsuario", usuario.NombreUsuario)
+    };
+    
+var key = new SymmetricSecurityKey(
+    Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])
+);
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: null,
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(30),
-                signingCredentials: creds
-            );
+var token = new JwtSecurityToken(
+    issuer: _configuration["Jwt:Issuer"],
+    audience: null,
+    claims: claims,
+    expires: DateTime.UtcNow.AddMinutes(30),
+    signingCredentials: creds
+);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+return new JwtSecurityTokenHandler().WriteToken(token);
+
+}
+
 
         public string GenerarRefreshToken() => Guid.NewGuid().ToString();
 
         public RefreshDTO GenerarTokens(Usuario usuario)
-        {
-            var Token = GenerarToken(usuario);
-            var RefreshToken = GenerarRefreshToken();
+{
+    var token = GenerarToken(usuario); 
+    var refreshToken = Guid.NewGuid().ToString(); 
 
-            return new RefreshDTO
-            {
-                Token = Token,
-                TokenRefresh = RefreshToken
-            };
-        }
+    return new RefreshDTO
+    {
+        Token = token,
+        TokenRefresh = refreshToken
+    };
+}
+
 }

@@ -40,7 +40,7 @@ public class AuthService
             Email = dto.Email,
             Contrasena = dto.Contrasena,
             Activo = true,
-            Rol = "Cliente"
+            Roles = "Cliente"
 
         };
 
@@ -49,68 +49,76 @@ public class AuthService
         return new { success = true, message = "Usuario registrado correctamente" };
     }
 
-    // ---------------------
-    // LOGIN
-    // ---------------------
-    public object Login(UsuarioLoginDTO dto)
+public object Login(UsuarioLoginDTO dto)
+{
+    Usuario usuario = null;
+
+    if (!string.IsNullOrEmpty(dto.Email))
+        usuario = _usuarioRepo.ObtenerUsuarioPorEmail(dto.Email);
+
+    if (usuario == null || usuario.Contrasena != dto.Contrasena)
+        return new { success = false, message = "Credenciales inválidas" };
+
+    var tokens = _tokenService.GenerarTokens(usuario);
+
+    var tokenEntity = new Token
     {
-        var usuario = _usuarioRepo.ObtenerUsuarioPorEmail(dto.Email);
+        IdUsuario = usuario.IdUsuario,
+        TokenRefresh = tokens.TokenRefresh,
+        TokenHash = tokens.Token,
+        Email = usuario.Email,
+        FechaExpiracion = DateTime.UtcNow.AddMinutes(30)
+    };
 
-        if (usuario == null || usuario.Contrasena != dto.Contrasena)
-            return new { success = false, message = "Credenciales inválidas" };
 
-        var tokens = _tokenService.GenerarTokens(usuario);
+    _tokenRepo.InsertarToken(tokenEntity);
 
-        var tokenEntity = new Token
+    return new
+    {
+        success = true,
+        usuario = new
         {
-            TokenHash = tokens.TokenRefresh,
-            Email = usuario.Email,
-            Expiracion = DateTime.UtcNow.AddMinutes(30)
-        };
+            usuario.IdUsuario,
+            usuario.NombreUsuario,
+            usuario.Email,
+            usuario.Roles
+        },
+        tokens.Token,
+        tokens.TokenRefresh
+    };
+}
 
-        _tokenRepo.InsertarToken(tokenEntity);
-
-        return new
-        {
-            success = true,
-            usuario = new
-            {
-                usuario.IdUsuario,
-                usuario.NombreUsuario,
-                usuario.Email,
-                usuario.Rol
-            },
-            tokens.Token,
-            tokens.TokenRefresh
-        };
-    }
 
     // ---------------------
     // REFRESH TOKEN
     // ---------------------
-    public object Refresh(RefreshDTO dto)
+   public object Refresh(RefreshDTO dto)
+{
+    var token = _tokenRepo.ObtenerToken(dto.TokenRefresh);
+
+    if (token == null || token.FechaExpiracion < DateTime.UtcNow)
+        return new { success = false, message = "Refresh token inválido o vencido" };
+
+    var usuario = _usuarioRepo.ObtenerUsuarioPorEmail(token.Email);
+
+    if (usuario == null)
+        return new { success = false, message = "Usuario no encontrado" };
+
+    var nuevosTokens = _tokenService.GenerarTokens(usuario);
+
+    _tokenRepo.ReemplazarToken(
+        usuario.IdUsuario, 
+        nuevosTokens.TokenRefresh, 
+        DateTime.UtcNow.AddMinutes(30) 
+    );
+    return new
     {
-        var token = _tokenRepo.ObtenerToken(dto.TokenRefresh);
+        success = true,
+        token = nuevosTokens.Token,
+        tokenRefresh = nuevosTokens.TokenRefresh
+    };
+}
 
-        if (token == null || token.Expiracion < DateTime.UtcNow)
-            return new { success = false, message = "Refresh token inválido o vencido" };
-
-        var usuario = _usuarioRepo.ObtenerUsuarioPorEmail(token.Email);
-
-        if (usuario == null)
-            return new { success = false, message = "Usuario no encontrado" };
-
-        var nuevosTokens = _tokenService.GenerarTokens(usuario);
-
-        _tokenRepo.ReemplazarToken(usuario.IdUsuario, nuevosTokens.TokenRefresh, DateTime.UtcNow.AddMinutes(30));
-
-        return new
-        {
-            success = true,
-            nuevosTokens.Token,
-            nuevosTokens.TokenRefresh
-        };
-    }
 
     // ---------------------
     // LOGOUT
@@ -124,20 +132,31 @@ public class AuthService
     // ---------------------
     // GET /auth/me
     // ---------------------
-    public object Me()
+    public object Me(ClaimsPrincipal user)
+{
+    var email = user.FindFirst(ClaimTypes.Name)?.Value;
+
+    if (email == null)
+        return new { success = false, message = "No estás autenticado" };
+
+    var usuario = _usuarioRepo.ObtenerUsuarioPorEmail(email);
+
+    if (usuario == null)
+        return new { success = false, message = "Usuario no encontrado" };
+
+    return new
     {
-        var user = _http.HttpContext?.User;
-
-        if (user == null || !user.Identity!.IsAuthenticated)
-            return new { success = false, message = "No estás autenticado" };
-
-        return new
+        success = true,
+        usuario = new
         {
-            Email = user.Identity!.Name,
-            Rol = user.FindFirst(ClaimTypes.Role)?.Value,
-            NombreUsuario = user.FindFirst("NombreUsuario")?.Value
-        };
-    }
+            usuario.IdUsuario,
+            usuario.NombreUsuario,
+            usuario.Email,
+            usuario.Roles
+        }
+    };
+}
+
 
     // ---------------------
     // GET /auth/roles

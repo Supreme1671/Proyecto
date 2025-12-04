@@ -81,3 +81,7 @@ INSERT INTO QR (IdEntrada, Codigo, FechaCreacion) VALUES
 (2, 'QR_0002', NOW());
 
 SELECT * FROM `Cliente`
+
+-- 11. CREAR USUARIO ADMIN
+INSERT INTO Usuario (NombreUsuario, Email, Contrasena, Roles)
+VALUES ('AdminMaster', 'admin@gmail.com', '1234', 'Admin');
