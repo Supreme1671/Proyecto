@@ -28,5 +28,23 @@ namespace Proyecto.Dapper
             string sql = "SELECT * FROM QR WHERE IdEntrada = @idEntrada";
             return _db.QueryFirstOrDefault<QR>(sql, new { idEntrada });
         }
+
+        public void Update(QR qr)
+        {
+            string sql = @"UPDATE QR 
+                        SET Codigo = @Codigo, 
+                            FechaCreacion = @FechaCreacion, 
+                            FechaUso = @FechaUso
+                        WHERE idQR = @idQR;";
+
+            _db.Execute(sql, new 
+            { 
+                qr.Codigo, 
+                qr.FechaCreacion, 
+                qr.FechaUso, 
+                qr.idQR 
+            });
+        }
+
     }
 }

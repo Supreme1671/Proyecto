@@ -5,5 +5,6 @@ namespace Proyecto.Core.DTOs
         public bool EsValido { get; set; }
         public string Mensaje { get; set; }
         public EntradaDTO? Entrada { get; set; }
+        public string Estado {get; set;}
     }
 }

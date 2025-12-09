@@ -6,6 +6,7 @@ namespace Proyecto.Core.Entidades
         public int IdEntrada { get; set; }
         public string Codigo { get; set; }
         public DateTime FechaCreacion { get; set; }
+        public DateTime? FechaUso { get; set; }
     }
 }
 

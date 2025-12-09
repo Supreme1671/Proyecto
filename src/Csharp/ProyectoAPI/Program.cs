@@ -830,28 +830,6 @@ app.MapGet("/entradas/{idEntrada}/qr",
 })
 .WithTags("QR");
 
-
-app.MapPost("/qr/lote",
-(List<int> idEntradas, IQrService qrService, IEntradaRepository repo, IConfiguration config) =>
-{
-    var resultados = new Dictionary<int, byte[]>();
-
-    foreach (var idEntrada in idEntradas)
-    {
-        var entrada = repo.GetById(idEntrada);
-        if (entrada == null) continue;
-
-        string qrContent = $"{entrada.IdEntrada}|{entrada.idFuncion}|{config["Qr:Key"]}";
-        var qrBytes = qrService.GenerarQr(qrContent);
-
-        resultados.Add(entrada.IdEntrada, qrBytes);
-    }
-
-    return Results.Ok(resultados);
-})
-.WithTags("QR");
-
-
 app.MapPost("/qr/validar",
 (string qrContent, IQrService qrService) =>
 {

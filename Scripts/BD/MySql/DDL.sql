@@ -128,6 +128,7 @@ CREATE TABLE QR (
     IdEntrada INT NOT NULL,
     Codigo VARCHAR(500) NOT NULL,
     FechaCreacion DATETIME NOT NULL,
+    FechaUso DATETIME NOT NULL,
     CONSTRAINT FK_QR_Entrada FOREIGN KEY (IdEntrada) REFERENCES Entrada(idEntrada)
 );
 

@@ -8,5 +8,6 @@ namespace Proyecto.Core.Repositorios
     {
         void Add(QR qr);
         QR GetByEntrada(int idEntrada);
+        void Update(QR qr);
     }
 }

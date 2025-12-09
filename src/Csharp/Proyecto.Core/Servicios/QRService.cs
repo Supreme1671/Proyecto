@@ -1,3 +1,4 @@
+using System.Data.SqlTypes;
 using Proyecto.Core.DTOs;
 using Proyecto.Core.Entidades;
 using Proyecto.Core.Repositorios;
@@ -69,9 +70,104 @@ namespace Proyecto.Core.Servicios
             };
         }
 
-        QrDTO IQrService.ValidarQr(string qrContent)
+        public QrDTO Update(QR qr)
         {
             throw new NotImplementedException();
+        }
+
+        QrDTO IQrService.ValidarQr(string qrContent)
+        {
+            var resultado = new QrDTO();
+
+            //Validar Contenido
+            if (string.IsNullOrEmpty(qrContent))
+            {
+                resultado.Estado = "FirmaInvalida";
+                return resultado;
+            }
+
+            try
+            {
+                //Parseo del QR
+                var partes = qrContent.Split('|');
+                if (partes.Length != 2)
+                {
+                    resultado.Estado = "FirmaInvalida";
+                    return resultado;
+                }
+
+                var entradaPart = partes[0].Split(':');
+                var usuarioPart = partes[1].Split(':');
+
+                if (entradaPart.Length != 2 || usuarioPart.Length != 2)
+                {
+                    resultado.Estado = "FirmaInvalida";
+                    return resultado;
+                } 
+
+                if (!int.TryParse(entradaPart[1], out int idEntrada))
+                {
+                    resultado.Estado = "FirmaInvalida";
+                    return resultado;
+                }
+
+                //Verificar existencia de entrada
+
+                var entrada = _entradaRepo.GetById(idEntrada);
+                if (entrada == null)
+                {
+                    resultado.Estado = "No existe";
+                    return resultado;
+                }
+
+                //Buscar QR asociado 
+                var qr = _qrRepo.GetByEntrada(idEntrada);
+                if (qr == null)
+                {
+                    resultado.Estado = "No existe";
+                    return resultado;
+                }
+
+                // Validar firma del QR (contenido coincide con el QR generado)
+                string contenidoEsperado = $"Entrada:{entrada.IdEntrada}|Usuario:{entrada.IdEntrada}";
+                if (qrContent != contenidoEsperado)
+                {
+                    resultado.Estado = "FirmaInvalida";
+                    return resultado;
+                }
+
+                //Verificar si ya fue usada
+                if (qr.FechaUso != null)
+                {
+                    resultado.Estado = "Ya Usada";
+                    return resultado;   
+                }
+
+                //Verificar si esta expirada
+                if((DateTime.Now - qr.FechaCreacion).TotalHours > 24)
+                {
+                    resultado.Estado = "Expirada";
+                    return resultado;
+                }
+
+                // Todo ok marca como usada
+                qr.FechaUso = DateTime.Now;
+                _qrRepo.Update(qr);
+
+                resultado.Estado = "Ok";
+                resultado.idQR = qr.idQR;
+                resultado.IdEntrada = qr.IdEntrada;
+                resultado.Codigo = qr.Codigo;
+                resultado.FechaCreacion = qr.FechaCreacion;
+
+                return resultado;
+            }
+            catch
+            {
+                resultado.Estado = "FirmaInvalida";
+                return resultado;
+            }
+
         }
     }
 }

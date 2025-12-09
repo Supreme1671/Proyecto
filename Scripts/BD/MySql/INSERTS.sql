@@ -76,9 +76,12 @@ INSERT INTO Entrada (Precio, idTarifa, idFuncion, Estado, Usada, Anulada, Numero
 (15000, 4, 5, 'Disponible', TRUE, FALSE, '004', 4, 4, 4);
 
 -- 10. EJEMPLO DE CÓDIGO QR
-INSERT INTO QR (IdEntrada, Codigo, FechaCreacion) VALUES
-(1, 'QR_0001', NOW()),
-(2, 'QR_0002', NOW());
+INSERT INTO QR (IdEntrada, Codigo, FechaCreacion, FechaUso) VALUES
+(1, 'QR_0001', NOW(), NOW()),
+(2, 'QR_0002', NOW(), NOW()),
+(3, 'QR_0003', NOW(), NOW()),
+(4, 'QR_0004', NOW(), NOW()),
+(5, 'QR_0005', NOW(), NOW());
 
 SELECT * FROM `Cliente`
 

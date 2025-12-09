@@ -1,4 +1,5 @@
 using Proyecto.Core.DTOs;
+using Proyecto.Core.Entidades;
 
 namespace Proyecto.Core.Servicios.Interfaces
 {
@@ -8,5 +9,6 @@ namespace Proyecto.Core.Servicios.Interfaces
         byte[] GenerarQr(string qrContent);
         QrDTO ObtenerQrPorEntrada(int idEntrada);
         QrDTO ValidarQr(string qrContent);
+        QrDTO Update(QR qr);
     }
 }
