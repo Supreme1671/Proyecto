@@ -45,11 +45,11 @@ INSERT INTO Funcion (Descripcion, FechaHora, idEvento, IdLocal) VALUES
 
 -- 6. INSERTAR TARIFAS
 
-INSERT INTO Tarifa (Precio, Descripcion, idSector, IdFuncion, idEvento) VALUES
-(25000, 'Platea Baja - Coldplay', 1, 1, 2),
-(18000, 'Platea Alta - Coldplay', 2, 2, 2),
-(50000, 'Palco VIP - Argentina vs Brasil', 3, 3, 1),
-(15000, 'Campo General - Boxeo', 4, 5, 3);
+INSERT INTO Tarifa (Precio, Descripcion, Stock, idSector, IdFuncion, idEvento) VALUES
+(25000, 'Platea Baja - Coldplay', 100, 1, 1, 2),
+(18000, 'Platea Alta - Coldplay', 150, 2, 2, 2),
+(50000, 'Palco VIP - Argentina vs Brasil', 50, 3, 3, 1),
+(15000, 'Campo General - Boxeo', 200, 4, 5, 3);
 
 -- 7. INSERTAR ÓRDENES
 

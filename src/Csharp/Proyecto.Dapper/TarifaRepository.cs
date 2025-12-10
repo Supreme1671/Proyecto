@@ -48,11 +48,25 @@ public class TarifaRepository : ITarifaRepository
     return filas > 0; 
 }
     public IEnumerable<Tarifa> GetByFuncionId(int idFuncion)
-    {
-        using var db = Connection;
-        string sql = "SELECT * FROM Tarifa WHERE IdFuncion = @idFuncion;";
-        return db.Query<Tarifa>(sql, new { idFuncion });
-    }
+{
+    using var db = Connection;
+
+    string sql = @"
+        SELECT 
+            idTarifa,
+            Precio,
+            Descripcion,
+            Stock,
+            Activo,
+            idSector,
+            idFuncion,
+            idEvento
+        FROM Tarifa
+        WHERE idFuncion = @idFuncion;";
+
+    return db.Query<Tarifa>(sql, new { idFuncion });
+}
+
 
    public Tarifa GetById(int idTarifa)
 {

@@ -720,11 +720,11 @@ app.MapPost("/api/tarifas", (TarifaCreateDTO dto, ITarifaRepository repo) =>
     {
         Precio = dto.Precio,
         Descripcion = dto.Nombre,
-        idFuncion = dto.idFuncion,
         idSector = dto.idSector,
         idEvento = dto.idEvento,
         Stock = dto.Stock,
-        Activo = true
+        Activo = true,
+        idFuncion = 1 
     };
 
     repo.Add(t);

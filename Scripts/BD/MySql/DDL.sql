@@ -73,7 +73,7 @@ CREATE TABLE Tarifa (
     Stock INT NOT NULL DEFAULT 0,
     Activo INT NOT NULL DEFAULT TRUE,
     idSector INT NOT NULL,
-    idFuncion INT NOT NULL,
+    idFuncion INT NULL,
     idEvento INT NOT NULL,
     FOREIGN KEY (idSector) REFERENCES Sector(idSector) ON DELETE CASCADE,
     FOREIGN KEY (IdFuncion) REFERENCES Funcion(IdFuncion) ON DELETE CASCADE,
