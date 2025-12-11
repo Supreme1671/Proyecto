@@ -24,7 +24,7 @@ namespace Proyecto.Core.Servicios
             if (entrada == null)
                 throw new Exception("La entrada no existe");
 
-            string contenido = $"Entrada:{entrada.IdEntrada}|Usuario:{entrada.IdUsuario}";
+            string contenido = $"http://localhost:5240/entrada/{entrada.IdEntrada}";
 
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
             QRCodeData qrData = qrGenerator.CreateQrCode(contenido, QRCodeGenerator.ECCLevel.Q);
