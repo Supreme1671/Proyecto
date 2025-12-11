@@ -425,11 +425,14 @@ app.MapGet("/api/entradas/{idEntrada}", (int idEntrada, IEntradaRepository repo)
     return Results.Ok(dto);
 })
 .WithTags("Entradas");
-
 app.MapPost("/api/entradas", (EntradaCreateDTO dto, IEntradaRepository repo) =>
 {
-    if (dto.Precio < 0)
-        return Results.BadRequest("El precio no puede ser negativo.");
+    Console.WriteLine("========== DEBUG EN /api/entradas ==========");
+    Console.WriteLine("DTO PRECIO: " + dto.Precio);
+    Console.WriteLine("DTO NUMERO: " + dto.Numero);
+    Console.WriteLine("DTO TARIFA: " + dto.IdTarifa);
+    Console.WriteLine("DTO FUNCION: " + dto.IdFuncion);
+    Console.WriteLine("=============================================");
 
     var entrada = new Entrada
     {
@@ -437,19 +440,28 @@ app.MapPost("/api/entradas", (EntradaCreateDTO dto, IEntradaRepository repo) =>
         Numero = dto.Numero,
         Usada = dto.Usada,
         Anulada = dto.Anulada,
-        QR = dto.QR
+        QR = dto.QR,
+        IdDetalleOrden = dto.IdDetalleOrden,
+        IdSector = dto.IdSector,
+        IdFuncion = dto.IdFuncion,
+        IdTarifa = dto.IdTarifa,
+        IdCliente = dto.IdCliente,
+        Estado = dto.Estado
     };
+
+    Console.WriteLine("DEBUG — ENTRADA.PRECIO ANTES DEL INSERT: " + entrada.Precio);
 
     repo.Add(entrada);
 
     var salida = new EntradaDTO
     {
         idEntrada = entrada.IdEntrada,
-        Precio = (int)entrada.Precio,
+        Precio = entrada.Precio, // ← SACA EL CASTEO A INT
         Numero = entrada.Numero,
         Usada = entrada.Usada,
         Anulada = entrada.Anulada,
-        QR = entrada.QR
+        QR = entrada.QR,
+        Estado = entrada.Estado
     };
 
     return Results.Created($"/api/entradas/{entrada.IdEntrada}", salida);
@@ -823,7 +835,7 @@ app.MapGet("/entradas/{idEntrada}/qr",
     if (entrada == null)
         return Results.NotFound("Entrada no existe");
 
-    string qrContent = $"{entrada.IdEntrada}|{entrada.idFuncion}|{config["Qr:Key"]}";
+    string qrContent = $"{entrada.IdEntrada}|{entrada.IdFuncion}|{config["Qr:Key"]}";
     var qrBytes = qrService.GenerarQr(qrContent);
 
     return Results.File(qrBytes, "image/png");

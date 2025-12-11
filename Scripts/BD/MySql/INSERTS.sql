@@ -68,6 +68,7 @@ INSERT INTO DetalleOrden (Cantidad, PrecioUnitario, IdOrden, IdEvento, IdTarifa)
 (3, 50000.00, 3, 1, 3),
 (2, 15000.00, 4, 3, 4);
 
+
 -- 9. INSERTAR ENTRADAS
 INSERT INTO Entrada (Precio, idTarifa, idFuncion, Estado, Usada, Anulada, Numero, idSector, IdDetalleOrden, idCliente) VALUES
 (25000, 1, 1, 'Disponible', TRUE, FALSE, '001', 1, 1, 1),

@@ -59,35 +59,39 @@ namespace Proyecto.Core.Repositorios.ReposDapper
             string sqlUpdate = "UPDATE Entrada SET Estado = 'Anulada' WHERE IdEntrada = @IdEntrada;";
             db.Execute(sqlUpdate, new { idEntrada });
         }
-        public int Add(Entrada entrada)
+       public int Add(Entrada entrada)
 {
     using var connection = new MySqlConnection(_connectionString);
     connection.Open();
+
     var sql = @"
         INSERT INTO Entrada
-            (Precio, idTarifa, idFuncion, Estado, Usada, Anulada, Numero, idSector, IdDetalleOrden, idCliente, QR)
+            (Precio, QR, Anulada, Usada, Numero, IdDetalleOrden, idSector, idFuncion, idTarifa, idCliente, Estado)
         VALUES
-            (@Precio, @idTarifa, @idFuncion, @Estado, @Usada, @Anulada, @Numero, @idSector, @IdDetalleOrden, @idCliente, @Qr);
-        SELECT LAST_INSERT_ID();";
+            (@Precio, @QR, @Anulada, @Usada, @Numero, @IdDetalleOrden, @IdSector, @IdFuncion, @IdTarifa, @IdCliente, @Estado);
+        SELECT LAST_INSERT_ID();
+    ";
 
-    // Dapper mapeará int? -> NULL automáticamente si es null
     var id = connection.ExecuteScalar<int>(sql, new
     {
         Precio = entrada.Precio,
-        IdTarifa = entrada.idTarifa,
-        IdFuncion = entrada.idFuncion,
-        Estado = string.IsNullOrWhiteSpace(entrada.Estado) ? "Disponible" : entrada.Estado,
-        Usada = entrada.Usada,
+        QR = entrada.QR,
         Anulada = entrada.Anulada,
+        Usada = entrada.Usada,
         Numero = entrada.Numero,
-        IdSector = entrada.idSector,
         IdDetalleOrden = entrada.IdDetalleOrden,
-        IdCliente = entrada.idCliente,
-        Qr = entrada.QR
+        IdSector = entrada.IdSector,
+        IdFuncion = entrada.IdFuncion,
+        IdTarifa = entrada.IdTarifa,
+        IdCliente = entrada.IdCliente,
+        Estado = string.IsNullOrWhiteSpace(entrada.Estado) ? "Disponible" : entrada.Estado
     });
+
+    entrada.IdEntrada = id;
 
     return id;
 }
+
 
         void IEntradaRepository.Add(Entrada entrada)
 {
